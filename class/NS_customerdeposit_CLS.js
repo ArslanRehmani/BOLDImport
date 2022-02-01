@@ -1,62 +1,44 @@
 define(['N/record'], function (record) {
     return {
-        Create : function (csvDatArray,finalArray,NetsuiteIdArray,rectype) {
+        Create : function (csvValuesData,finalArray,createRecordinArray,rectype) {
             var title = 'customerdeposit()::';
             try {
                 log.debug({
                     title: 'Record create Function Call in Custome Deposit',
                     details: rectype
                 });
-                
+                rectype = rectype.toString();
             var NetsuiteRecordCreate = record.create({
                         type: rectype,
                         isDynamic: true
             });
             
-            for (var c=0 ; c<csvDatArray.length ; c++){
-                var firstlineobj = csvDatArray[c];
-                var NetsuiteRecordCreate = record.create({
-                    // type: 'customrecord_ab_payroll_mapping',
-                    type: rectype,
-                    isDynamic: true
+            createRecordinArray = JSON.parse(createRecordinArray);
+            for(var i = 0; i < createRecordinArray.length; i++){
+                var FieldSetObj = createRecordinArray[i];
+                var header = FieldSetObj.csvField;
+                var NSid = FieldSetObj.NSField;
+                var val = csvValuesData[header];
+                log.debug({
+                    title: 'val',
+                    details: val
                 });
-                for(var i = 0 ; i <finalArray.length;i++){
-                    var field = finalArray[i];
-                    var firstlineKeys = Object.keys(firstlineobj);
-                    for(var j = 0 ; j <firstlineKeys.length ;j++){
-                            if(firstlineKeys[j] == field){
-                                log.debug('FieldSet',field +":"+firstlineobj[firstlineKeys[j]]);
-                                
-                                if(field == 'date'){
-                                    // log.debug(title+'date',firstlineobj[firstlineKeys[j]]);
-                                    var date = new Date(firstlineobj[firstlineKeys[j]]);
-                                    // log.debug(title+'date//////',date);
-                                    // var date1 = new Date('9/15/2021');
-                                    // log.debug(title+'date',firstlineobj[firstlineKeys[j]]);
-                                    // var day = date1.getDay();
-                                    // var month = date1.getMonth()+1;
-                                    // var year = date1.getFullYear();
-                                    // var formateDate =  month +'/'+ day +'/'+ year;
-                                    // log.debug(title+'formateDate',formateDate);
-                                    NetsuiteRecordCreate.setValue({
-                                        fieldId: NetsuiteIdArray[i],
-                                        value: date
-                                    });
-                                }else{
-                                    NetsuiteRecordCreate.setValue({
-                                        fieldId: NetsuiteIdArray[i],
-                                        value: firstlineobj[firstlineKeys[j]]
-                                    });
-                                }
-                                    
-                            }
-                    }
-                }
-                var recordId = NetsuiteRecordCreate.save({
-                    enableSourcing: true,
-                    ignoreMandatoryFields: true
+                log.debug({
+                    title: 'NSid',
+                    details: NSid
                 });
-                
+                if(header == 'date'){
+                    var date = new Date(val);
+                    NetsuiteRecordCreate.setValue({
+                        fieldId: NSid,
+                        value: date
+                    });
+                }else{
+                    NetsuiteRecordCreate.setValue({
+                        fieldId: NSid,//netsuite field id's
+                        value: val // Netsuite Field Value
+                    });
+                }  
                 
             }
             var recordId = NetsuiteRecordCreate.save({

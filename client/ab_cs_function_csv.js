@@ -500,11 +500,18 @@
                    var csvmaptableRowsArray = csvmaptableRows.split(",");
 
                    var MapObjArray = [];
+                   var csvheaderArray = [];
                    var obj ={};
+                   var csvHeaderObj = {};
                    if (netsuitemaptableRowsArray.length == csvmaptableRowsArray.length){
                     for (var i=0; i<netsuitemaptableRowsArray.length; i++){
                         obj = {}
-                        obj[netsuitemaptableRowsArray[i]] = csvmaptableRowsArray[i]
+                        csvHeaderObj = {}
+                        // csvHeaderObj use for csv header key 
+                        csvHeaderObj[netsuitemaptableRowsArray[i]] = csvmaptableRowsArray[i];
+                        csvheaderArray.push(csvHeaderObj);
+                        obj.csvField = csvmaptableRowsArray[i];
+                        obj.NSField = netsuitemaptableRowsArray[i];
                         MapObjArray.push(obj);
                     }
                     console.log('MapObjArray in mid Table',MapObjArray);
@@ -512,6 +519,12 @@
                     rec.setValue({
                         fieldId: 'custpage_ab_middletablerows',
                         value: mapobjarrayjson
+                    });
+                    console.log('csvheaderArray',csvheaderArray);
+                    var csvheaderArrayjson = JSON.stringify(csvheaderArray)
+                    rec.setValue({
+                        fieldId: 'custpage_ab_middletablerows_csv_header',
+                        value: csvheaderArrayjson
                     });
                    }        
             }

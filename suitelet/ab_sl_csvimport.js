@@ -2,7 +2,7 @@
      *@NApiVersion 2.0
     *@NScriptType Suitelet
     */
-    define(['N/ui/serverWidget','N/log','N/file','N/record','../common/ab_lib_convertCSVToJson.js','N/currentRecord','N/ui/dialog','../Library/Controller.js'], function(serverWidget,log,file,record,convertCSVLIB,currentRecord,dialog,ControllerLib) {
+    define(['N/ui/serverWidget','N/log','N/file','N/record','../common/ab_lib_convertCSVToJson.js','N/currentRecord','N/ui/dialog','../Library/Controller.js','N/task','../class/ab_map_reduce_status_CLS.js'], function(serverWidget,log,file,record,convertCSVLIB,currentRecord,dialog,ControllerLib,task,MRstatusCLS) {
 
         function onRequest(context) {
             var title = 'OnRequestSL::'
@@ -34,11 +34,11 @@
             });
             var fileMapSTP = assistance.addStep({
                 id : 'custpage_ab_filemap',
-                label : 'File Mapping'
+                label : 'File & Field Mapping'
             });
             var fieldMapSTP = assistance.addStep({
                 id : 'custpage_ab_fieldmap',
-                label : 'Field Mapping'
+                label : 'CSV Import Message'
             });
             var saveMapSTP = assistance.addStep({
                 id : 'custpage_ab_savemap',
@@ -63,9 +63,27 @@
                     var lenghtEqual = GetThirdStepFieldMapLength(assistance);
 
                     if((require == 'true' || require == true) && (lenghtEqual == 'true' || lenghtEqual == true)){
-                        var createRecordinArray = createRecordInnetsuite(assistance);                       
-                        var mapedFieldArray = createRecordinArray;
+                        var createRecordinArray = createRecordInnetsuite(assistance); 
+                        var objRecord = record.create({
+                            type: 'customrecord_ab_maped_record',
+                            isDynamic: true
+                        });
+                        objRecord.setValue('custrecord_ab_maped_record_field',createRecordinArray);
+                        var recordId = objRecord.save({
+                            enableSourcing: true,
+                            ignoreMandatoryFields: true
+                            });
+                            log.debug({
+                                title: '====> createRecordinArray',
+                                details: createRecordinArray
+                            });                      
+                        // var mapedFieldArray = createRecordinArray;
+                        var mapedFieldArray = mapedFieldArrayfunction(assistance);
                           mapedFieldArray = JSON.parse(mapedFieldArray);
+                          log.debug({
+                            title: '====> mapedFieldArray',
+                            details: mapedFieldArray
+                        });
                         var finalArray = [];
                         var NetsuiteIdArray = [];
                             for(var i=0; i<mapedFieldArray.length; i++){
@@ -79,51 +97,52 @@
                                 title: 'finalArray ====>',
                                 details: finalArray
                             });
+                            log.debug({
+                                title: 'NetsuiteIdArray ====>',
+                                details: NetsuiteIdArray
+                            });
                         var rectype = RecordType(assistance);
                         var rectypetostring = rectype.toString();
                         var csvDatArray = CSVDatafromSecondStep(assistance);
-                        csvDatArray = JSON.parse(csvDatArray);
-                        var CreatedRecordDataObj = {};
-                        // for (var c=0 ; c<csvDatArray.length ; c++){
-                        //     var firstlineobj = csvDatArray[c];
-                        //     // var NetsuiteRecordCreate = record.create({
-                        //     //     // type: 'customrecord_ab_payroll_mapping',
-                        //     //     type: rectypetostring,
-                        //     //     isDynamic: true
-                        //     // });
-                        //     for(var i = 0 ; i <finalArray.length;i++){
-                        //         var field = finalArray[i];
-                        //         var firstlineKeys = Object.keys(firstlineobj);
-                        //         for(var j = 0 ; j <firstlineKeys.length ;j++){
-                        //                 if(firstlineKeys[j] == field){
-                        //                     // log.debug('FieldSet',field +":"+firstlineobj[firstlineKeys[j]]);
-                        //                     // log.debug('NetsuiteIdArray[i]====',NetsuiteIdArray[i]);
-                        //                     CreatedRecordDataObj.fieldId = NetsuiteIdArray[i];
-                        //                     CreatedRecordDataObj.value = firstlineobj[firstlineKeys[j]];
-                        //                     // NetsuiteRecordCreate.setValue({
-                        //                     //         fieldId: NetsuiteIdArray[i],
-                        //                     //         value: firstlineobj[firstlineKeys[j]]
-                        //                     //     });
-                                            
-                        //                 }
-                        //         }
-                        //         log.debug({
-                        //             title: 'CreatedRecordDataObj used in Class',
-                        //             details: CreatedRecordDataObj
-                        //         });
-                                ControllerLib.recTypeSwitch(csvDatArray,finalArray,NetsuiteIdArray,rectypetostring);
-                        //     }
-                        //     // var recordId = NetsuiteRecordCreate.save({
-                        //     //     enableSourcing: true,
-                        //     //     ignoreMandatoryFields: true
-                        //     // });
-                            
-                            
-                        // }
-                        // log.debug(title+'CreatedRecordDataObj-----',CreatedRecordDataObj);
-                        // log.debug(title+'rectypetostring-----',rectypetostring);
+                        // csvDatArray = JSON.parse(csvDatArray);
+                        // csvDatArray = JSON.stringify(csvDatArray);
+
+                        //Create file in File Cabniet to store CSV file data
+                            var fileObj = file.create({
+                            name: 'CSV Data',
+                            fileType: file.Type.JSON,
+                            contents: csvDatArray,
+                            folder: 14272,
+                            isOnline: true
+                            });
                         
-                
+                            // Save the file
+                            var id = fileObj.save();
+
+                            //Call MapReduce Script for record creation
+                            var mapReduce = task.create({
+                                taskType: task.TaskType.MAP_REDUCE,
+                                scriptId: 'customscript_ap_mr_create_record_csv',
+                                deploymentId: 'customdeploy_ap_mr_create_record_csv',
+                                params: {
+                                    'custscript_ab_csv_data_length': id,
+                                    'custscript_ab_rectype': rectypetostring,
+                                    'custscript_ab_cvs_final_header_array': finalArray,
+                                    'custscript_ab_record_id_array': createRecordinArray
+                                }
+                                });
+                                // Submit the map/reduce task
+                            var mapReduceId = mapReduce.submit();
+                            log.debug({
+                                title: 'mapReduceId ====>',
+                                details: mapReduceId
+                            });
+                            var summary1 = task.checkStatus({
+                                taskId: mapReduceId
+                                });
+                                var taskStatus = summary1.status;
+                            log.debug(title+'Task Status',summary1.status);
+                            MRstatusCLS.Create(mapReduceId,taskStatus,id);
                         
                         assistance.currentStep = assistance.getNextStep(); 
                     }else{
@@ -163,6 +182,7 @@
 
                     case 'custpage_ab_filemap':
                         buildThirdStep(assistance);
+                        log.debug('buildThirdStep','buildThirdStep123');
                         break;
 
                     case 'custpage_ab_fieldmap':
@@ -294,6 +314,14 @@
                 middletablesrow.updateDisplayType({
                     displayType : serverWidget.FieldDisplayType.HIDDEN
                 }); 
+                var middletablesrowCsvHeader = assistance.addField({
+                    id: 'custpage_ab_middletablerows_csv_header',
+                    type: serverWidget.FieldType.LONGTEXT,
+                    label : 'Middle Table Rows'
+                });
+                middletablesrowCsvHeader.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.HIDDEN
+                }); 
                 var recType = assistance.addField({
                     id: 'custpage_ab_rectypelocalstorage',
                     type: serverWidget.FieldType.TEXT,
@@ -313,23 +341,38 @@
             try{
                 var filedsFld = assistance.addField({
                     id : 'custpage_ab_file',
-                    type : serverWidget.FieldType.TEXT,
-                    label : 'Your Fileds Mapping Here'
+                    type : serverWidget.FieldType.INLINEHTML,
+                    label : 'Records Successfully Created'
                 });
-                var table = assistance.addField({
-                    id: 'custpage_ng_htmlfield',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: 'Intelisys'
+                filedsFld.updateDisplayType({
+                    displayType: serverWidget.FieldDisplayType.NORMAL
                 });
-                table.updateLayoutType({
-                    layoutType: serverWidget.FieldLayoutType.NORMAL
+                filedsFld.defaultValue = '<h1 style="color: green;">Records Successfully Created</h1>';
+                var btn = assistance.addField({
+                    id : 'custpage_ab_btn',
+                    type : serverWidget.FieldType.INLINEHTML,
+                    label : 'Records btn'
                 });
-                table.defaultValue = indexPageValue;
+                btn.updateDisplayType({
+                    displayType: serverWidget.FieldDisplayType.NORMAL
+                });
+                btn.defaultValue = '<button> <a onclick="swapRow(event)" title="Delete"></a>View Record</button>';
+                // var table = assistance.addField({
+                //     id: 'custpage_ng_htmlfield',
+                //     type: serverWidget.FieldType.INLINEHTML,
+                //     label: 'Intelisys'
+                // });
+                // table.updateLayoutType({
+                //     layoutType: serverWidget.FieldLayoutType.NORMAL
+                // });
+                // table.defaultValue = indexPageValue;
                 }catch(error){
                     log.error(title+error.name,error.message) 
             } 
         }
-
+        function swapRow(e){ 
+            alert('Hello');
+        }
         function GetThirdStepFieldMapLength(assistance){
                 var  recStep3 = assistance.getStep({
                     id : 'custpage_ab_filemap'
@@ -356,6 +399,16 @@
                 id : 'custpage_ab_middletablerows'
             });
             return middletablerow
+        }
+        //arslan
+        function mapedFieldArrayfunction(assistance){
+            var  recStep3 = assistance.getStep({
+                id : 'custpage_ab_filemap'
+            });
+            var middletablerowcsvHeader = recStep3.getValue({
+                id : 'custpage_ab_middletablerows_csv_header'
+            });
+            return middletablerowcsvHeader
         }
         function CSVDatafromSecondStep(assistance){
             var  recStep123 = assistance.getStep({

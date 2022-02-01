@@ -1,27 +1,31 @@
 define(['../class/NS_Cust_Payroll_CLS.js','../class/NS_Cust_Logging_CLS.js','../class/NS_customerdeposit_CLS.js'], function (custPayrollCLS,custLoggingCLS,customerdepositeCLS) {
     return {
         
-        recTypeSwitch : function (csvDatArray,finalArray,NetsuiteIdArray,rectype) {
+        recTypeSwitch : function (csvValuesData,finalArray,createRecordinArray,rectype) {
             var title = 'recTypeSwitch()::';
             log.debug(title+'rectype',rectype);
             try {
                 switch(rectype) {
                     case 'customrecord_ab_payroll_mapping':
-                        custPayrollCLS.Create(csvDatArray,finalArray,NetsuiteIdArray,rectype);
+                        custPayrollCLS.Create(csvValuesData,finalArray,createRecordinArray,rectype);
                         log.debug({
                             title: 'Call to create Payroll',
                             details: 'Calling...'
+                        });
+                        log.debug({
+                            title: 'csvDatArrayl in Controller',
+                            details: csvValuesData
                         })
                       break;
                     case 'customrecord_ab_custom_logging':
-                        custLoggingCLS.Create(csvDatArray,finalArray,NetsuiteIdArray,rectype);
+                        custLoggingCLS.Create(csvValuesData,finalArray,createRecordinArray,rectype);
                         log.debug({
                             title: 'Call to create Logging',
                             details: 'Calling...'
                         })
                     break;
                     case 'customerdeposit':
-                        customerdepositeCLS.Create(csvDatArray,finalArray,NetsuiteIdArray,rectype);
+                        customerdepositeCLS.Create(csvValuesData,finalArray,createRecordinArray,rectype);
                         log.debug({
                             title: 'Call to create customerdeposit',
                             details: 'Calling...'
