@@ -32,7 +32,8 @@ define(['N/log','N/runtime','N/file','../Library/Controller.js'], function(log,r
         }
 
     function map(context) {
-        var csvValuesData = JSON.parse(context.value);
+        try{
+            var csvValuesData = JSON.parse(context.value);
         log.debug({
             title: 'csvValuesData',
             details: csvValuesData
@@ -54,8 +55,19 @@ define(['N/log','N/runtime','N/file','../Library/Controller.js'], function(log,r
             title: 'createRecordinArray====',
             details: createRecordinArray
         });
+        var selectOption = runtime.getCurrentScript().getParameter({//for only update record
+            name : 'custscript_ab_select_option'
+        });
+        log.debug({
+            title: 'selectOption==== in MR',
+            details: selectOption
+        });
         //Call Controller class that create records in NS
-        ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype);
+        ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype,selectOption);
+        }catch(ex){
+            log.error('getInputData error: ', ex.message);
+            }
+        
     }
 
     function reduce(context) {

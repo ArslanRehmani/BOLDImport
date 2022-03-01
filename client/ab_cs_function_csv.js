@@ -16,6 +16,9 @@
                     var NetSuiteArray = [];
                     var NetsuiteMaparray = [];
 
+                    
+                    
+
                     // var recordField = 'customrecord_ab_payroll_mapping';
                     var recordField = localStorage.getItem('recscan');
                     console.log('recTypeFirstStep local data', recordField);
@@ -30,13 +33,28 @@
                     if(csvdata){
                     var csv_json =  JSON.parse(csvdata);
                     record.setValue({
-                        fieldId: 'custpage_ab_csvdata',
+                        fieldId: 'custpage_ab_csvdata', 
                         value: csvdata
                     });
+                    // console.log('csvdata<<<<==>>>',csvdata);
+                    // var internalIDValue = csv_json[InternalId];
+                    // console.log('internalIDValue<<<<==>>>',internalIDValue);
                     if(csv_json.length){
                         headerFields = Object.keys(csv_json[0]);
+                        // headerFieldsVal = Object.values(csv_json[0]);
+                        // var internalIDVal = headerFieldsVal[0];
+                        // console.log('internalIDVal<<<<==>>>',internalIDVal);
+                        // record.setValue({
+                        //     fieldId: 'custpage_ab_internalidid',
+                        //     value: internalIDVal
+                        // });
                     }
                     }
+                    // var internalIDVal = new Array("InternalId");
+                    // if( jQuery.inArray("InternalId", internalIDVal) !== -1 ) {
+                    //     var val = headerFields[0];
+                    //     console.log('InternalId Val ===<<<',val);
+                    // }
                     // var html = '<h1>Fields are loaded</h1>';
                     // window.nlapiSetFieldValue('custpage_hidden_data_field', html);
 
@@ -332,7 +350,7 @@
                 try {
                         var rec =  currentRecord.get();
                         // console.log("field is chaging values ------------------------------------")
-                    
+                        
                     var  netsuitedata = jQuery('#NetSuitetblMap .fields').length;
                     console.log('netsuitedatalenght1 --->', netsuitedata);
                         var csvmapdata = jQuery('#CSVtblMap .fields').length;
@@ -427,6 +445,22 @@
                              
                         }
                         console.log('context1', context);
+                        var select = jQuery('input[name="custpage_ab_add"]:checked').val();
+                        localStorage.setItem('selectoption',select);
+                        console.log('select option', select);
+                        var selectOption  = localStorage.getItem('selectoption');
+                        if(fieldId == 'custpage_ab_add'){
+                            rec.setValue({
+                                fieldId: 'custpage_ab_selectoption',
+                                value: selectOption
+                            });
+                        }
+                        
+                        // if(selectOption == 'Update'){
+
+                        // }
+                        
+                        
 
                 } catch (e) {
                     log.debug(e.message);
@@ -520,8 +554,27 @@
                         fieldId: 'custpage_ab_middletablerows',
                         value: mapobjarrayjson
                     });
+                    //Check for update wheter internal Id is selected or not
+                    var internalIdObj = MapObjArray.filter(function (obj){
+                        return obj.NSField == 'id';
+                    });
+                    console.log('internalIdObj',internalIdObj);
+                    //value = 0 if no internal id is found
+                    // value = 1 if thier is internal id is selected in mapping
+                    if(internalIdObj== ''){
+                        rec.setValue({
+                            fieldId: 'custpage_ab_internalidid',
+                            value: '0'
+                        });
+                    }else{
+                        rec.setValue({
+                            fieldId: 'custpage_ab_internalidid',
+                            value: '1'
+                        });
+                    }
+                   
                     console.log('csvheaderArray',csvheaderArray);
-                    var csvheaderArrayjson = JSON.stringify(csvheaderArray)
+                    var csvheaderArrayjson = JSON.stringify(csvheaderArray);
                     rec.setValue({
                         fieldId: 'custpage_ab_middletablerows_csv_header',
                         value: csvheaderArrayjson

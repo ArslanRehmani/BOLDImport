@@ -46,7 +46,26 @@
             });
             
             
-            
+            //Select option get here through function from 3rd step and pass parameter to Map reduce
+            var selectOption = getSelectOption(assistance);
+            log.debug({
+                title: 'selectOption ====<<<<bhr',
+                details: selectOption
+            });
+            var internalidObj = internalidOBJ(assistance);
+                    log.debug({
+                        title: 'internalidObj ====<<<<bhr',
+                        details: internalidObj
+                    });
+            if(selectOption == 'Update' && internalidObj == '1'){
+                var UpdateRecord = 1;//update record in NS
+                log.debug({
+                    title: 'UpdateRecord ====<<<<bhr',
+                    details: 'UpdateRecord'
+                });
+            }else{
+                var UpdateRecord = 2;//not update give error if yu want to update rec in NS
+            }
             if (assistance.getLastAction() == serverWidget.AssistantSubmitAction.NEXT || assistance.getLastAction() == serverWidget.AssistantSubmitAction.BACK){
                 if(assistance.currentStep == null){
                     recStep = assistance.getStep({
@@ -59,6 +78,7 @@
                 }
                 log.debug('assistance.currentStep',assistance.currentStep.id);
                 if(assistance.currentStep.id == "custpage_ab_filemap"){
+                    
                     var require = GetThirdStepFieldMapLengthRequire(assistance);
                     var lenghtEqual = GetThirdStepFieldMapLength(assistance);
 
@@ -128,8 +148,13 @@
                                     'custscript_ab_csv_data_length': id,
                                     'custscript_ab_rectype': rectypetostring,
                                     'custscript_ab_cvs_final_header_array': finalArray,
-                                    'custscript_ab_record_id_array': createRecordinArray
+                                    'custscript_ab_record_id_array': createRecordinArray,
+                                    'custscript_ab_select_option': UpdateRecord
                                 }
+                                });
+                                log.debug({
+                                    title: 'UpdateRecord MR ====>',
+                                    details: UpdateRecord
                                 });
                                 // Submit the map/reduce task
                             var mapReduceId = mapReduce.submit();
@@ -265,6 +290,19 @@
                     title: 'CSVDataThirdStep ------->',
                     details: CSVDataThirdStep
                 });
+                var selectOption = assistance.addField({
+                    id: 'custpage_ab_selectoption',
+                    type: serverWidget.FieldType.TEXT,
+                    label : 'Select Option'
+                });
+                selectOption.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.NORMAL
+                });
+                log.debug({
+                    title: 'selectOption ------->',
+                    details: selectOption
+                });
+                
                 }catch(error){
                     log.error(title+error.name,error.message) 
             } 
@@ -330,6 +368,18 @@
                 recType.updateDisplayType({
                     displayType : serverWidget.FieldDisplayType.HIDDEN
                 }); 
+                var InternalIDUpdate = assistance.addField({
+                    id: 'custpage_ab_internalidid',
+                    type: serverWidget.FieldType.TEXT,
+                    label : 'Internal ID Update OBJ'
+                });
+                InternalIDUpdate.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.NORMAL
+                });
+                log.debug({
+                    title: 'InternalIDUpdate ------->',
+                    details: InternalIDUpdate
+                });
                 
                 }catch(error){
                     log.error(title+error.name,error.message) 
@@ -427,6 +477,24 @@
                 id : 'custpage_ab_rectypelocalstorage'
             });
             return recTypelocal
+        }
+        function getSelectOption(assistance){
+            var  recStep2 = assistance.getStep({
+                id : 'custpage_ab_importopt'
+            });
+            var selectOption = recStep2.getValue({
+                id : 'custpage_ab_selectoption'
+            });
+            return selectOption
+        }
+        function internalidOBJ(assistance){
+            var  recStep3 = assistance.getStep({
+                id : 'custpage_ab_filemap'
+            });
+            var internalid1or0 = recStep3.getValue({
+                id : 'custpage_ab_internalidid'
+            });
+            return internalid1or0
         }
         return {
             onRequest: onRequest
