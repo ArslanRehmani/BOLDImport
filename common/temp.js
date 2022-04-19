@@ -91,9 +91,9 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
         getRecFields: function getRecFields(rec) {
             var title = 'getRecFields()::';
             log.debug(title + "rec",rec);
-            var newfields = [];
-            var fieldObj = {};
-            var fields,bodyfields , filteredFields = [],sublistFields ={},items =[],excludedFieldsArray, fieldfilterObj,obj ={};
+            var newfields = []
+            var fields, filteredFields = [],sublistFields =[],items =[];
+                excludedFieldsArray, fieldfilterObj,obj ={};
             try {
                 excludedFieldsArray = fieldsExcluded.bodyFields;
                 fields = rec.getFields();
@@ -102,7 +102,6 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     sublistId: 'item'
                 });
                 console.log('items', items);
-     
                 if (fields.length) {
                     filteredFields = fields.filter(function (val) {
                         for (var i = 0; i < excludedFieldsArray.length; i++) {
@@ -115,34 +114,8 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         }
                     });
                 }
-                filteredFields =[]
-                console.log('items.length', items.length);
-                if(items.length){
-               
-                    for (var i = 0; i < items.length; i++) {
-                        fieldfilterObj = rec.getSublistField({
-                            sublistId: 'item',
-                            fieldId: items[i],
-                            line :0
-                        });
-                        console.log('fieldfilterObj', fieldfilterObj);
-                        if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly ) {
-                            obj ={}
-                            obj.id = fieldfilterObj.id;
-                            obj.name = fieldfilterObj.label;
-                            obj.isMandator = fieldfilterObj.isMandatory;
-                            obj.isDisabled = fieldfilterObj.isDisabled;
-                            obj.isDisplay = fieldfilterObj.isDisplay;
-                            obj.isReadOnly = fieldfilterObj.isReadOnly;
-                            obj.isVisible = fieldfilterObj.isVisible;
-                            filteredFields.push(obj)
-                        }
-                    }
-                    items = filteredFields;
-                    sublistFields.item =items;
-                }
                 if(newfields.length){
-                    filteredFields =[];
+                    filteredFields =[]
                     for (var i = 0; i < newfields.length; i++) {
                         fieldfilterObj = rec.getField({
                             fieldId: newfields[i]
@@ -156,17 +129,13 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         }
                     }
                 }
-                bodyfields = filteredFields;
-                fieldObj.bodyfields = bodyfields;
-                fieldObj.sublistFields = sublistFields;
-
                 // if(newfields.length){
 
                 // }
+                return filteredFields || [];
             } catch (error) {
                 log.error(title + error.name, error.message);
             }
-            return fieldObj || [];
 
         }
     }

@@ -44,8 +44,8 @@
                 console.log('recordField is issue here',recordField);
                 var recordFields = getRecordFields(recordField)
                 console.log('Fileds -> is issue here', recordFields);
-                if (recordFields.length) {
-                    console.log('if stat ----->',recordFields.length);
+                if (recordFields.bodyfields.length) {
+                    console.log('if stat ----->',recordFields.bodyfields.length);
                 var recordFieldVal = window.nlapiGetFieldValue('custpage_hidden_data_field')
                 var html = '<!DOCTYPE html>\
                     <html lang="en">\
@@ -167,8 +167,24 @@
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody">';
-                                    for (var i = 0; i <= recordFields.length - 1; i++) {
-                                        var datarec = recordFields[i];
+                                    for (var i = 0; i <= recordFields.sublistFields.item.length - 1; i++) {
+                                        var datarec = recordFields.sublistFields.item[i];
+                                        var mandatoryData = datarec.isMandator;
+                                        var staric = '*(required)';
+                                        if(mandatoryData == true){
+                                            html += '<tr>\
+                                        <td class = "fields" data-id = "'+datarec.id+'" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>'+"<span> <strong> lineItem : </strong> </span>"+ datarec.name +''+staric+'</td>\
+                                        </tr>'
+                                        NetSuiteArray.push(datarec.id);
+                                        }else{
+                                            html += '<tr>\
+                                        <td class = "fields" data-id = "'+datarec.id+'" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>'+ " <span> <strong> lineItem : </strong> </span>"+datarec.name +'</td>\
+                                        </tr>'
+                                        // NetsuiteMaparray.push()
+                                        }   
+                                    }
+                                    for (var i = 0; i <= recordFields.bodyfields.length - 1; i++) {
+                                        var datarec = recordFields.bodyfields[i];
                                         var mandatoryData = datarec.isMandator;
                                         var staric = '*(required)';
                                         if(mandatoryData == true){
@@ -183,6 +199,7 @@
                                         // NetsuiteMaparray.push()
                                         }   
                                     }          
+          
                         html += '</tbody>\
                                 </table>\
                             </div>\
@@ -312,10 +329,11 @@
                 
                     if (rec) {
                         console.log('fields before',fields);
+                        // console.log('convertCSVLIB',convertCSVLIB.getRecFields(rec));
                         fields = convertCSVLIB.getRecFields(rec);
                         console.log('fields after',fields);
-
-                        if (fields.length) {
+                        
+                        if (fields.bodyfields.length) {
                             return fields;
                         } else {
                             throw new Error('Fields not found please check record id on import custom records');
@@ -363,10 +381,10 @@
                    console.log('NetSuiteReuireLengthSplit------+++++>>>>>',NetSuiteReuireLengthSplit);
                 var CsvReuireLength = localStorage.getItem('NetSiteMapRequireLengthData');
                     console.log('CsvReuireLength------+++++>>>>>',CsvReuireLength);
-                    var csvRequirarray = CsvReuireLength.split(",");
+                    var csvRequirarray = CsvReuireLength ? CsvReuireLength.split(",") : [];
 
                     console.log('csvRequirarray------+++++>>>>>',csvRequirarray);
-                    var CsvReuireLengthSplit = CsvReuireLength.split(",").length;
+                    var CsvReuireLengthSplit = CsvReuireLength ? CsvReuireLength.split(",").length : 0;
                    console.log('CsvReuireLengthSplit------+++++>>>>>',CsvReuireLengthSplit);
                     // if(CsvReuireLengthSplit >= NetSuiteReuireLengthSplit)  {
 
