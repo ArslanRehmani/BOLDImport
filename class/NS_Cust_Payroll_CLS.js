@@ -1,5 +1,6 @@
-define(['N/record'], function (record) {
-    var logError = [];
+define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,createCSVLogfile) {
+    //'../class/createCSVFile.js'      createCSVLogfile
+    var logErrorArray = [];
     return {
         Create : function (csvValuesData,finalArray,createRecordinArray,rectype) {
             var title = 'CustPayroll()::';
@@ -120,11 +121,37 @@ define(['N/record'], function (record) {
                 var obj = {};
                 obj.id = loadrec;
                 obj.error = error.message;
-                logError.push(obj);
+                logErrorArray.push(obj);
                 log.debug({
                     title: 'logErrorUPDATE',
-                    details: logError
+                    details: logErrorArray
                 });
+                // var properties = Object.keys(logErrorArray[0]);
+                // createCSVLogfile.createCSVFile(logErrorArray, properties);
+                if (logErrorArray && logErrorArray.length > 0) {
+                    log.debug({
+                        title: 'LOG_ARRAY',
+                        details: JSON.stringify(logErrorArray)
+                    });
+                    var properties = Object.keys(logErrorArray[0]);
+                    log.debug({
+                        title: 'properties',
+                        details: JSON.stringify(properties)
+                    });
+                    // call class that create error file
+                    var csvFileCreated = createCSVLogfile.createCSVFile(logErrorArray, properties);
+                   createCSVLogfile.createCSVFile(logErrorArray, properties);
+                    log.debug({
+                        title: 'created and saved the log file: ',
+                        details: csvFileCreated
+                    });
+                    // NAScriptedCSVImportjq.NAScriptedCSVImportJQ.upsert({
+                    //     id: QUEUE_RECORD_ID,
+                    //     processnote: 'Execution completed with errors. See Log File.',
+                    //     processlogfile: csvFileCreated,
+                    //     processstatus: 'Queue'
+                    // });
+                }
             }
             
         }

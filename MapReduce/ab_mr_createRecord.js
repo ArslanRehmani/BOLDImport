@@ -65,7 +65,7 @@ define(['N/log','N/runtime','N/file','../Library/Controller.js'], function(log,r
         //Call Controller class that create records in NS
         ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype,selectOption);
         }catch(ex){
-            log.error('getInputData error: ', ex.message);
+            log.error('Map error: ', ex.message);
             }
         
     }

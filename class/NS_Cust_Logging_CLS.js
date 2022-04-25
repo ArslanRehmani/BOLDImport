@@ -1,4 +1,4 @@
-define(['N/record'], function (record) {
+define(['N/record','../class/createCSVFile.js'], function (record,createCSVLogfile) {
     var logError = [];
     return {
         Create : function (csvValuesData,finalArray,createRecordinArray,rectype) {
@@ -121,6 +121,30 @@ define(['N/record'], function (record) {
                 title: 'logErrorUPDATE',
                 details: logError
             });
+            if (logErrorArray && logErrorArray.length > 0) {
+                log.debug({
+                    title: 'LOG_ARRAY',
+                    details: JSON.stringify(logErrorArray)
+                });
+                var properties = Object.keys(logErrorArray[0]);
+                log.debug({
+                    title: 'properties',
+                    details: JSON.stringify(properties)
+                });
+                // call class that create error file
+                var csvFileCreated = createCSVLogfile.createCSVFile(logErrorArray, properties);
+               createCSVLogfile.createCSVFile(logErrorArray, properties);
+                log.debug({
+                    title: 'created and saved the log file: ',
+                    details: csvFileCreated
+                });
+                // NAScriptedCSVImportjq.NAScriptedCSVImportJQ.upsert({
+                //     id: QUEUE_RECORD_ID,
+                //     processnote: 'Execution completed with errors. See Log File.',
+                //     processlogfile: csvFileCreated,
+                //     processstatus: 'Queue'
+                // });
+            }
         }
     };
     
