@@ -94,27 +94,27 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
             if (result.length) {
                 localStorage.setItem("csvData", JSON.stringify(result));
                 console.log('***result***', result);
-                var result1 = result.reduce(function (r, a) {
-                    r[a.SOID] = r[a.SOID] || [];
-                    r[a.SOID].push(a);
-                    return r;
-                }, Object.create(null));
+        //         var result1 = result.reduce(function (r, a) {
+        //             r[a.SOID] = r[a.SOID] || [];
+        //             r[a.SOID].push(a);
+        //             return r;
+        //         }, Object.create(null));
             
-            console.log('***resultGrouped***',result1);
-            //fuifill first condition group on Sales order ID
-            console.log('###FirstGrouped###',Object.keys(result1));
-            console.log('###result1.S01###',result1.S01);
-            var firstLineItemgrouped = result1.S01;
-            console.log('###firstLineItemgrouped###',firstLineItemgrouped);
-            var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
-                r[a.LineID] = r[a.LineID] || [];
-                r[a.LineID].push(a);
-                return r;
-            }, Object.create(null));
+        //     console.log('***resultGrouped***',result1);
+        //     //fuifill first condition group on Sales order ID
+        //     console.log('###FirstGrouped###',Object.keys(result1));
+        //     console.log('###result1.S01###',result1.S01);
+        //     var firstLineItemgrouped = result1.S01;
+        //     console.log('###firstLineItemgrouped###',firstLineItemgrouped);
+        //     var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
+        //         r[a.LineID] = r[a.LineID] || [];
+        //         r[a.LineID].push(a);
+        //         return r;
+        //     }, Object.create(null));
         
-        console.log('***resultLineGroup12***',resultLineGroup);
-        result1['lineData']=resultLineGroup;
-        console.log('***FinalGroupLine***',result1.lineData=resultLineGroup);
+        // console.log('***resultLineGroup12***',resultLineGroup);
+        // result1['lineData']=resultLineGroup;
+        // console.log('***FinalGroupLine***',result1.lineData=resultLineGroup);
 
             } else {
                 alert('Selected CSV File is empty');

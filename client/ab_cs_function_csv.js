@@ -48,7 +48,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                 console.log('Fileds -> is issue here', recordFields);
                 if (recordFields.bodyfields.length) {
                     console.log('if stat ----->', recordFields.bodyfields.length);
-                    console.log('if stat sublistFields ==----->', recordFields.sublistFields.length);
+                    console.log('if stat sublistFields ==----->', recordFields.sublistFields.item.length);
                     var recordFieldVal = window.nlapiGetFieldValue('custpage_hidden_data_field')
                     var html = '<!DOCTYPE html>\
                     <html lang="en">\
@@ -174,7 +174,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody" >';
-                    if (recordFields.sublistFields.length > 0) {
+                    if (recordFields.sublistFields.item.length > 0) {
                         for (var i = 0; i <= recordFields.sublistFields.item.length - 1; i++) {
                             var datarec = recordFields.sublistFields.item[i];
                             var mandatoryData = datarec.isMandator;
