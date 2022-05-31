@@ -24,6 +24,14 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         console.log('dataCSSV', data);
                         var lines = data.split("\n")
                         var csvValue = self.csvJSON(data);
+                    //     var csvValue = self.csvJSON(data),
+                    //     groupData = csvValue.reduce(function (r, a) {
+                    //         r[a.entity] = r[a.entity] || [];
+                    //         r[a.entity].push(a);
+                    //         return r;
+                    //     }, Object.create(null));
+                    
+                    // console.log('***groupData***',groupData);
                         console.log('csvValue', csvValue);
                         console.log('e.target.result', lines);
                         // jQuery.ajax({
@@ -61,16 +69,21 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
             // (you might convert them to &&& or something, then covert them back later)
             // jsfiddle showing the issue https://jsfiddle.net/
             var headers = lines[0].split(",");
-
+            console.log('***headers***', headers);
             for (var i = 1; i < lines.length; i++) {
 
                 var obj = {};
                 var currentline = lines[i].replace('\n', '').split(",");
-
+                // console.log('***currentline***', currentline);
                 for (var j = 0; j < headers.length; j++) {
                     if (headers[j] && currentline[j]) {
                         obj[headers[j]] = currentline[j];
                     }
+                    /*if (obj [j] == obj [j]){
+                        obj.lineID = array of items
+                    }
+
+                    a*/
                 }
                 if (Object.keys(obj).length) {
 
@@ -80,6 +93,29 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
             }
             if (result.length) {
                 localStorage.setItem("csvData", JSON.stringify(result));
+                console.log('***result***', result);
+                var result1 = result.reduce(function (r, a) {
+                    r[a.SOID] = r[a.SOID] || [];
+                    r[a.SOID].push(a);
+                    return r;
+                }, Object.create(null));
+            
+            console.log('***resultGrouped***',result1);
+            //fuifill first condition group on Sales order ID
+            console.log('###FirstGrouped###',Object.keys(result1));
+            console.log('###result1.S01###',result1.S01);
+            var firstLineItemgrouped = result1.S01;
+            console.log('###firstLineItemgrouped###',firstLineItemgrouped);
+            var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
+                r[a.LineID] = r[a.LineID] || [];
+                r[a.LineID].push(a);
+                return r;
+            }, Object.create(null));
+        
+        console.log('***resultLineGroup12***',resultLineGroup);
+        result1['lineData']=resultLineGroup;
+        console.log('***FinalGroupLine***',result1.lineData=resultLineGroup);
+
             } else {
                 alert('Selected CSV File is empty');
                 jQuery('#file').val('');
