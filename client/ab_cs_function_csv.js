@@ -169,8 +169,8 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         <tr>\
                                             <th>NetSuite Field Name</th>\
                                         </tr>\
-                                        <tr data-toggle="toggle">\
-                                        <th><a onclick="swapRow1(event)" title="Delete"><i class="fa fa-arrows-h"></i></a><span class="plusminusTechnology"></span>Hide Item Sublist</th>\
+                                        <tr id="toggle1">\
+                                        <th><a onclick="swapRow1(event)" title="Hide/Show Item"><b>Double Click Hide/show Item Sublist</b></a></th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody" >';
@@ -488,26 +488,32 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         fieldChanged(rec);
 
     }
+    // function swapRow1(e) {
+    //     // console.log("event12",e)
+    //     jQuery(document).ready(function () {
+    //         jQuery('.hideTr').slideUp(600);
+    //         jQuery('[data-toggle="toggle"]').click(function () {
+    //             if (jQuery(this).parents().next(".hideTr").is(":visible") == true) {
+    //                 // jQuery(this).parents().next('.hideTr').slideUp(600);
+    //                 jQuery(this).parents().next('.hideTr').show("slow");
+    //                 // jQuery(".plusminus" + $(this).children().children().attr("id")).text('+');
+    //                 jQuery(this).css('background-color', 'white');
+    //             }
+    //             else {
+    //                 // jQuery(this).parents().next('.hideTr').slideDown(600);
+    //                 jQuery('.hideTr').slideDown("slow");
+    //                 // jQuery(this).parents().next('.hideTr').slideUp();
+    //                 // jQuery(".plusminus" + $(this).children().children().attr("id")).text('- ');
+    //                 // jQuery(this).css('background-color', '#c1eaff ');
+    //             }
+    //         });
+    //     });
+    // }
     function swapRow1(e) {
-        // console.log("event12",e)
-        jQuery(document).ready(function () {
-            jQuery('.hideTr').slideUp(600);
-            jQuery('[data-toggle="toggle"]').click(function () {
-                if (jQuery(this).parents().next(".hideTr").is(":visible") == true) {
-                    // jQuery(this).parents().next('.hideTr').slideUp(600);
-                    jQuery(this).parents().next('.hideTr').show("slow");
-                    // jQuery(".plusminus" + $(this).children().children().attr("id")).text('+');
-                    jQuery(this).css('background-color', 'white');
-                }
-                else {
-                    // jQuery(this).parents().next('.hideTr').slideDown(600);
-                    jQuery('.hideTr').slideDown("slow");
-                    // jQuery(this).parents().next('.hideTr').slideUp();
-                    // jQuery(".plusminus" + $(this).children().children().attr("id")).text('- ');
-                    jQuery(this).css('background-color', '#c1eaff ');
-                }
+        // console.log("event12",e)  
+            jQuery('#toggle1').click(function () {
+                    jQuery('.hideTr').toggle();//this one is working with double click
             });
-        });
     }
 
     function serializeData() {
