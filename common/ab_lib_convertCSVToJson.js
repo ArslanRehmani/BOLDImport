@@ -24,14 +24,14 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         console.log('dataCSSV', data);
                         var lines = data.split("\n")
                         var csvValue = self.csvJSON(data);
-                    //     var csvValue = self.csvJSON(data),
-                    //     groupData = csvValue.reduce(function (r, a) {
-                    //         r[a.entity] = r[a.entity] || [];
-                    //         r[a.entity].push(a);
-                    //         return r;
-                    //     }, Object.create(null));
-                    
-                    // console.log('***groupData***',groupData);
+                        //     var csvValue = self.csvJSON(data),
+                        //     groupData = csvValue.reduce(function (r, a) {
+                        //         r[a.entity] = r[a.entity] || [];
+                        //         r[a.entity].push(a);
+                        //         return r;
+                        //     }, Object.create(null));
+
+                        // console.log('***groupData***',groupData);
                         console.log('csvValue', csvValue);
                         console.log('e.target.result', lines);
                         // jQuery.ajax({
@@ -94,27 +94,27 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
             if (result.length) {
                 localStorage.setItem("csvData", JSON.stringify(result));
                 console.log('***result***', result);
-        //         var result1 = result.reduce(function (r, a) {
-        //             r[a.SOID] = r[a.SOID] || [];
-        //             r[a.SOID].push(a);
-        //             return r;
-        //         }, Object.create(null));
-            
-        //     console.log('***resultGrouped***',result1);
-        //     //fuifill first condition group on Sales order ID
-        //     console.log('###FirstGrouped###',Object.keys(result1));
-        //     console.log('###result1.S01###',result1.S01);
-        //     var firstLineItemgrouped = result1.S01;
-        //     console.log('###firstLineItemgrouped###',firstLineItemgrouped);
-        //     var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
-        //         r[a.LineID] = r[a.LineID] || [];
-        //         r[a.LineID].push(a);
-        //         return r;
-        //     }, Object.create(null));
-        
-        // console.log('***resultLineGroup12***',resultLineGroup);
-        // result1['lineData']=resultLineGroup;
-        // console.log('***FinalGroupLine***',result1.lineData=resultLineGroup);
+                var result1 = result.reduce(function (r, a) {
+                    r[a.SOID] = r[a.SOID] || [];
+                    r[a.SOID].push(a);
+                    return r;
+                }, Object.create(null));
+
+                console.log('***resultGrouped***', result1);
+                //fuifill first condition group on Sales order ID
+                console.log('###FirstGrouped###', Object.keys(result1));
+                console.log('###result1.S01###', result1.S01);
+                var firstLineItemgrouped = result1.S01;
+                console.log('###firstLineItemgrouped###', firstLineItemgrouped);
+                var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
+                    r[a.LineID] = r[a.LineID] || [];
+                    r[a.LineID].push(a);
+                    return r;
+                }, Object.create(null));
+
+                console.log('***resultLineGroup12***', resultLineGroup);
+                result1['lineData'] = resultLineGroup;
+                console.log('***FinalGroupLine***', result1.lineData = resultLineGroup);
 
             } else {
                 alert('Selected CSV File is empty');
@@ -126,10 +126,10 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
         },
         getRecFields: function getRecFields(rec) {
             var title = 'getRecFields()::';
-            log.debug(title + "rec",rec);
+            log.debug(title + "rec", rec);
             var newfields = [];
             var fieldObj = {};
-            var fields,bodyfields , filteredFields = [],sublistFields ={},items =[],excludedFieldsArray, fieldfilterObj,obj ={};
+            var fields, bodyfields, filteredFields = [], sublistFields = {}, items = [], excludedFieldsArray, fieldfilterObj, obj = {};
             try {
                 excludedFieldsArray = fieldsExcluded.bodyFields;
                 fields = rec.getFields();
@@ -138,7 +138,7 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     sublistId: 'item'
                 });
                 console.log('items', items);
-     
+
                 if (fields.length) {
                     filteredFields = fields.filter(function (val) {
                         for (var i = 0; i < excludedFieldsArray.length; i++) {
@@ -151,19 +151,19 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         }
                     });
                 }
-                filteredFields =[]
+                filteredFields = []
                 console.log('items.length', items.length);
-                if(items.length){
-               
+                if (items.length) {
+
                     for (var i = 0; i < items.length; i++) {
                         fieldfilterObj = rec.getSublistField({
                             sublistId: 'item',
                             fieldId: items[i],
-                            line :0
+                            line: 0
                         });
-                        console.log('fieldfilterObj', fieldfilterObj);
-                        if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly ) {
-                            obj ={}
+                        // console.log('fieldfilterObj', fieldfilterObj);
+                        if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly) {
+                            obj = {}
                             obj.id = fieldfilterObj.id;
                             obj.name = fieldfilterObj.label;
                             obj.isMandator = fieldfilterObj.isMandatory;
@@ -175,16 +175,16 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         }
                     }
                     items = filteredFields;
-                    sublistFields.item =items;
+                    sublistFields.item = items;
                 }
-                if(newfields.length){
-                    filteredFields =[];
+                if (newfields.length) {
+                    filteredFields = [];
                     for (var i = 0; i < newfields.length; i++) {
                         fieldfilterObj = rec.getField({
                             fieldId: newfields[i]
                         });
                         if (fieldfilterObj && fieldfilterObj.label != '') {
-                            obj ={}
+                            obj = {}
                             obj.id = newfields[i];
                             obj.name = fieldfilterObj.label;
                             obj.isMandator = fieldfilterObj.isMandatory;

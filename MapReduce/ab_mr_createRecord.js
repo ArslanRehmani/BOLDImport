@@ -20,7 +20,7 @@ define(['N/log','N/runtime','N/file','../Library/Controller.js'], function(log,r
             title: 'recType in Map Reduce',
             details: recType
         });
-        var CSVData = file.load({id: 71728});
+        var CSVData = file.load({id: 71728});//csvData replace instead for hard code
         CSVDataValue = CSVData.getContents();
             log.debug('CSVDataValue',CSVDataValue);
         CSVDataValue = JSON.parse(CSVDataValue);
@@ -62,8 +62,15 @@ define(['N/log','N/runtime','N/file','../Library/Controller.js'], function(log,r
             title: 'selectOption==== in MR',
             details: selectOption
         });
+        var LineLevelData = runtime.getCurrentScript().getParameter({//for only update record
+            name : 'custscript_ab_line_level_data'
+        });
+        log.debug({
+            title: 'LineLevelData==== in MR',
+            details: LineLevelData
+        });
         //Call Controller class that create records in NS
-        ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype,selectOption);
+        ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype,selectOption,LineLevelData);
         }catch(ex){
             log.error('Map error: ', ex.message);
             }

@@ -83,11 +83,13 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
 
                     if ((require == 'true' || require == true) && (lenghtEqual == 'true' || lenghtEqual == true)) {
                         var createRecordinArray = createRecordInnetsuite(assistance);
+                        var createRecordLineLeveldata = createRecordLineLevelData(assistance);
                         var objRecord = record.create({
                             type: 'customrecord_ab_maped_record',
                             isDynamic: true
                         });
                         objRecord.setValue('custrecord_ab_maped_record_field', createRecordinArray);
+                        objRecord.setValue('custrecord_ab_maped_record_linefield', createRecordLineLeveldata);
                         var recordId = objRecord.save({
                             enableSourcing: true,
                             ignoreMandatoryFields: true
@@ -95,6 +97,10 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                         log.debug({
                             title: '====> createRecordinArray',
                             details: createRecordinArray
+                        });
+                        log.debug({
+                            title: 'createRecordLineLeveldata ====> ',
+                            details: createRecordLineLeveldata
                         });
                         // var mapedFieldArray = createRecordinArray;
                         var mapedFieldArray = mapedFieldArrayfunction(assistance);
@@ -144,7 +150,8 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                                 'custscript_ab_rectype': rectypetostring,
                                 'custscript_ab_cvs_final_header_array': finalArray,
                                 'custscript_ab_record_id_array': createRecordinArray,
-                                'custscript_ab_select_option': UpdateRecord
+                                'custscript_ab_select_option': UpdateRecord,
+                                'custscript_ab_line_level_data': createRecordLineLeveldata
                             }
                         });
                         log.debug({
@@ -351,6 +358,14 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             middletablesrow.updateDisplayType({
                 displayType: serverWidget.FieldDisplayType.HIDDEN
             });
+            var LineLevelData = assistance.addField({
+                id: 'custpage_ab_line_level_data',
+                type: serverWidget.FieldType.LONGTEXT,
+                label: 'Middle Table Rows'
+            });
+            LineLevelData.updateDisplayType({
+                displayType: serverWidget.FieldDisplayType.HIDDEN
+            });
             var middletablesrowCsvHeader = assistance.addField({
                 id: 'custpage_ab_middletablerows_csv_header',
                 type: serverWidget.FieldType.LONGTEXT,
@@ -454,6 +469,21 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 id: 'custpage_ab_middletablerows'
             });
             return middletablerow
+        } catch (e) {
+            log.debug(title + e.message, e.error);
+        }
+
+    }
+    function createRecordLineLevelData(assistance) {
+        var title = 'createRecordLineLevelData()::';
+        try {
+            var recStep3 = assistance.getStep({
+                id: 'custpage_ab_filemap'
+            });
+            var lineLevelData = recStep3.getValue({
+                id: 'custpage_ab_line_level_data'
+            });
+            return lineLevelData
         } catch (e) {
             log.debug(title + e.message, e.error);
         }
