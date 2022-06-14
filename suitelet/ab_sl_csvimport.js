@@ -129,7 +129,10 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                         var rectype = RecordType(assistance);
                         var rectypetostring = rectype.toString();
                         var csvDatArray = CSVDatafromSecondStep(assistance);
-
+                        log.debug({
+                            title: 'csvDatArray ()()()',
+                            details: csvDatArray
+                        });
                         //Create file in File Cabniet to store CSV file data
                         var fileObj = file.create({
                             name: 'CSV Data',

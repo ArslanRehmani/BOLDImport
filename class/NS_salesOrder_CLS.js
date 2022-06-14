@@ -12,18 +12,23 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     title: 'LineLevelData in Sales Order Class',
                     details: LineLevelData
                 });
+                log.debug({
+                    title: 'csvValuesDataGroup in Sales Order Class',
+                    details: csvValuesData.length
+                });
                 rectype = rectype.toString();
                 var NetsuiteRecordCreate = record.create({
                     type: rectype,
                     isDynamic: true
                 });
-
+                var csvValuesDataGroupOBJ = csvValuesData[0];
                 createRecordinArray = JSON.parse(createRecordinArray);
                 for (var i = 0; i < createRecordinArray.length; i++) {
                     var FieldSetObj = createRecordinArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
-                    var val = csvValuesData[header];
+                    // var val = csvValuesData[header];
+                    var val = csvValuesDataGroupOBJ[header];
                     if (header == 'date') {
                         log.debug({
                             title: 'NSid' + ' ' + 'NSval',
@@ -51,15 +56,17 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     title: 'jsonLinelevelArray',
                     details: jsonLinelevelArray
                 });
-                for (var j = 0; j < 1; j++) { //This loop is for num of lines need to enter in Sales order **Need to be Dynamic**
+                for (var j = 0; j < csvValuesData.length; j++) {
                     NetsuiteRecordCreate.selectNewLine({
                         sublistId: 'item'
                     });
+                    var csvValuesDataGroupOBJ = csvValuesData[j];
                     for (var k = 0; k < jsonLinelevelArray.length; k++) {
                         var LineSetObj = jsonLinelevelArray[k];
                         var header = LineSetObj.csvField;
                         var NSid = LineSetObj.NSField;
-                        var val = csvValuesData[header];
+                        // var val = csvValuesData[header];
+                        var val = csvValuesDataGroupOBJ[header];
                         log.debug({
                             title: 'LineNSid' + ' ' + 'LineNSval',
                             details: NSid + ' ' + val
@@ -144,7 +151,7 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     title: 'jsonLinelevelArray',
                     details: jsonLinelevelArray
                 });
-                for (var j = 0; j < 1; j++) { //This loop is for num of lines need to enter in Sales order **Need to be Dynamic**
+                for (var j = 0; j < 2; j++) { //This loop is for num of lines need to enter in Sales order **Need to be Dynamic**
                     NetsuiteRecordCreate.selectNewLine({
                         sublistId: 'item'
                     });

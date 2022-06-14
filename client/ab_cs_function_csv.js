@@ -29,8 +29,14 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                 value: recordField
             });
 
-
-            var csvdata = localStorage.getItem('csvData')
+            
+            // var csvDataGroupHeaders = localStorage.getItem('csvDataGroupHeaders');
+            // // console.log('****csvDataGroupHeadersArray****', Object.keys(csvDataGroupHeaders.So1[0]));
+            // // var csv_jsonHeader = JSON.parse(csvDataGroupHeaders);
+            // var headerArr = csvDataGroupHeaders.split(',');
+            // console.log('csvDataGroupHeadersArray****', headerArr);
+            var csvdata = localStorage.getItem('csvData');
+            console.log('csvdata()**()', csvdata);
             if (csvdata) {
                 var csv_json = JSON.parse(csvdata);
                 record.setValue({
@@ -41,7 +47,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     headerFields = Object.keys(csv_json[0]);
                 }
             }
-
+            // headerFields = headerArr;
             if (recordField) {
                 console.log('recordField is issue here', recordField);
                 var recordFields = getRecordFields(recordField)
@@ -252,7 +258,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         <td class = "fields" data-id = "'+ headerField + '" name = "CSVFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + headerField + '</td>\
                                         </tr>'
                     }
-
                     html += '</tbody>\
                                 </table>\
                             </div>\
@@ -570,8 +575,8 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     LineObj.csvField = csvmaptableRowsArray[i];
                     LineObj.NSField = netsuitemaptableRowsArray[i];
                     LineLevelArray.push(LineObj);
-                    
-                }else{
+
+                } else {
                     obj.csvField = csvmaptableRowsArray[i];//change here for header fields
                     obj.NSField = netsuitemaptableRowsArray[i];
                     MapObjArray.push(obj);
