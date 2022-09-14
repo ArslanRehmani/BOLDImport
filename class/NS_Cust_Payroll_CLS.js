@@ -1,5 +1,4 @@
 define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,createCSVLogfile) {
-    //'../class/createCSVFile.js'      createCSVLogfile
     var logErrorArray = [];
     return {
         Create : function (csvValuesData,finalArray,createRecordinArray,rectype) {
@@ -9,44 +8,21 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
                     title: 'Record create Function Call Payroll',
                     details: rectype
                 });
-                log.debug({
-                    title: 'Netsuite CSV Array length',
-                    details: csvValuesData
-                });
-                log.debug({
-                    title: 'Netsuite createRecordinArray',
-                    details: createRecordinArray
-                });
                 rectype = rectype.toString();
-                log.debug({
-                    title: 'rectype.toString()',
-                    details: rectype.toString()
-                });
             var NetsuiteRecordCreate = record.create({
                         type: rectype,
                         isDynamic: true
             });
-            
-
             createRecordinArray = JSON.parse(createRecordinArray);
             for(var i = 0; i < createRecordinArray.length; i++){
                 var FieldSetObj = createRecordinArray[i];
                 var header = FieldSetObj.csvField;
                 var NSid = FieldSetObj.NSField;
                 var val = csvValuesData[header];
-                log.debug({
-                    title: 'val',
-                    details: val
-                });
-                log.debug({
-                    title: 'NSid',
-                    details: NSid
-                });
                 NetsuiteRecordCreate.setValue({
                     fieldId: NSid,//netsuite field id's
                     value: val // Netsuite Field Value
-                });
-                
+                }); 
             }
             var recordId = NetsuiteRecordCreate.save({
                 enableSourcing: true,
@@ -55,29 +31,20 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
             log.debug({
                 title: 'Record create In NetSuite  ID',
                 details: recordId
-            });
-
-            
-                
+            });      
         } catch (error) {
                 log.error(title + error.name, error.message);
             }
-
         },
         Update : function (csvValuesData,finalArray,createRecordinArray,rectype) {
             var title = 'CustPayroll():: Update';
             try {
                 var loadrec;
                 log.debug({
-                    title: 'Record create Function Call Payroll for Update',
+                    title: 'Record Update Function Call Payroll for Update',
                     details: rectype
                 });
                 rectype = rectype.toString();
-                log.debug({
-                    title: 'rectype string',
-                    details: rectype
-                });
-
             createRecordinArray = JSON.parse(createRecordinArray);
             for(var i = 0; i < createRecordinArray.length; i++){
                 var FieldSetObj = createRecordinArray[i];
@@ -86,10 +53,6 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
                 var val = csvValuesData[header];
                 if(NSid == 'id'){
                     loadrec = csvValuesData[header];
-                    log.debug({
-                        title: 'loadrec',
-                        details: loadrec
-                    });
                 }      
             }
             var NetsuiteRecordCreate = record.load({
@@ -126,8 +89,6 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
                     title: 'logErrorUPDATE',
                     details: logErrorArray
                 });
-                // var properties = Object.keys(logErrorArray[0]);
-                // createCSVLogfile.createCSVFile(logErrorArray, properties);
                 if (logErrorArray && logErrorArray.length > 0) {
                     log.debug({
                         title: 'LOG_ARRAY',
@@ -145,12 +106,6 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
                         title: 'created and saved the log file: ',
                         details: csvFileCreated
                     });
-                    // NAScriptedCSVImportjq.NAScriptedCSVImportJQ.upsert({
-                    //     id: QUEUE_RECORD_ID,
-                    //     processnote: 'Execution completed with errors. See Log File.',
-                    //     processlogfile: csvFileCreated,
-                    //     processstatus: 'Queue'
-                    // });
                 }
             }
             

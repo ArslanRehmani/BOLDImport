@@ -1,8 +1,8 @@
 define(['N/record','N/search','N/log','N/error'], function (record,search,log,error) {
     // var NAScriptedCSVImportJQ;
     return {
-        NAScriptedCSVImportJQ = (function () {
-            return {
+        // NAScriptedCSVImportJQ = (function () {
+            // return {
                 Internalid: 'customrecord_scsvijq',
                 Fields: {
                     RecordType: {id: 'custrecord_jqrecordtype', source: 'recordtype', setDynamic: true},//Record Type
@@ -127,8 +127,8 @@ define(['N/record','N/search','N/log','N/error'], function (record,search,log,er
                     }
                     return id;
                 }
-            };
-        })()
+            // };
+        // })()
 
     };
 });

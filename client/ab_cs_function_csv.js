@@ -2,39 +2,24 @@
  *@NApiVersion 2.0
 *@NScriptType ClientScript
 */
-define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js'], function (record, search, currentRecord, importRecordCLS, convertCSVLIB) {
+define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js','../common/ab_lib_common.js'], function (record, search, currentRecord, importRecordCLS, convertCSVLIB,commonLib) {
 
     function pageInit(context) {
         try {
-            recType(context);
+            selectRecTypeToImportCvs(context);
             window.swapRow = swapRow;
-            window.swapRow1 = swapRow1;
+            window.hideLineItems = hideLineItems;
             var headerFields;
-
-
             var record = currentRecord.get();
-            var currentRec = context.currentRecord;
             var NetSuiteArray = [];
-            var NetsuiteMaparray = [];
-
-
-
 
             // var recordField = 'customrecord_ab_payroll_mapping';
-            var recordField = localStorage.getItem('recscan');
-            console.log('recTypeFirstStep local data', recordField);
+            var recordField = localStorage.getItem('recscan');;
             //set value in second step so that we can create record with repective record type
             record.setValue({
                 fieldId: 'custpage_ab_rectypelocalstorage',
                 value: recordField
             });
-
-            
-            // var csvDataGroupHeaders = localStorage.getItem('csvDataGroupHeaders');
-            // // console.log('****csvDataGroupHeadersArray****', Object.keys(csvDataGroupHeaders.So1[0]));
-            // // var csv_jsonHeader = JSON.parse(csvDataGroupHeaders);
-            // var headerArr = csvDataGroupHeaders.split(',');
-            // console.log('csvDataGroupHeadersArray****', headerArr);
             var csvdata = localStorage.getItem('csvData');
             console.log('csvdata()**()', csvdata);
             if (csvdata) {
@@ -47,14 +32,10 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     headerFields = Object.keys(csv_json[0]);
                 }
             }
-            // headerFields = headerArr;
             if (recordField) {
-                console.log('recordField is issue here', recordField);
                 var recordFields = getRecordFields(recordField)
-                console.log('Fileds -> is issue here', recordFields);
                 if (recordFields.bodyfields.length) {
                     console.log('if stat ----->', recordFields.bodyfields.length);
-                    console.log('if stat sublistFields ==----->', recordFields.sublistFields.item.length);
                     var recordFieldVal = window.nlapiGetFieldValue('custpage_hidden_data_field')
                     var html = '<!DOCTYPE html>\
                     <html lang="en">\
@@ -175,8 +156,8 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         <tr>\
                                             <th>NetSuite Field Name</th>\
                                         </tr>\
-                                        <tr id="toggle1">\
-                                        <th><a onclick="swapRow1(event)" title="Hide/Show Item"><b>Double Click Hide/show Item Sublist</b></a></th>\
+                                        <tr id="hideRow">\
+                                        <th><a onclick="hideLineItems(event)" title="Hide/Show Item"><b>Double Click Hide/show Item Sublist</b></a></th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody" >';
@@ -194,7 +175,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                 html += '<tr class="hideTr">\
                                             <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '</td>\
                                             </tr>'
-                                // NetsuiteMaparray.push()
                             }
                         }
                     }
@@ -212,7 +192,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                             html += '<tr>\
                                         <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + datarec.name + '</td>\
                                         </tr>'
-                            // NetsuiteMaparray.push()
                         }
                     }
 
@@ -286,13 +265,12 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     </html>';
 
                     window.nlapiSetFieldValue('custpage_hidden_data_field', html);
-                    sortTable(jQuery('#NetSuitetbl'), 'asc');
-                    sortTable(jQuery('#CSVtbl'), 'asc');
+                    commonLib.sortTable(jQuery('#NetSuitetbl'), 'asc');
+                    commonLib.sortTable(jQuery('#CSVtbl'), 'asc');
                 }
             }
 
             localStorage.setItem('NetSuiteRequireDataLength', NetSuiteArray);
-
             window.getJsonCSV = convertCSVLIB.getJsonCSV;
             window.csvJSON = convertCSVLIB.csvJSON;
         } catch (e) {
@@ -300,7 +278,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         }
     }
 
-    function recType(context) {
+    function selectRecTypeToImportCvs(context) {
         try {
             var record = currentRecord.get();
             var importRecords = importRecordCLS.getList();
@@ -338,10 +316,8 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             });
             console.log('recID', recID);
             console.log('rec', rec);
-
             if (rec) {
                 console.log('fields before', fields);
-                // console.log('convertCSVLIB',convertCSVLIB.getRecFields(rec));
                 fields = convertCSVLIB.getRecFields(rec);
                 console.log('fields after', fields);
 
@@ -362,10 +338,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         try {
             var rec = currentRecord.get();
             var netsuitedata = jQuery('#NetSuitetblMap .fields').length;
-            console.log('netsuitedatalenght1 --->', netsuitedata);
             var csvmapdata = jQuery('#CSVtblMap .fields').length;
-            console.log('csvmapdatalength1  --->', csvmapdata);
-
             if (netsuitedata == csvmapdata) {
                 rec.setValue({
                     fieldId: 'custpage_ab_truedata',
@@ -381,19 +354,9 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             }
 
             var NetSuiteReuireLength = localStorage.getItem('NetSuiteRequireDataLength');
-            console.log('NetSuiteReuireLength------+++++>>>>>', NetSuiteReuireLength);
             var NetSuiteRequireArray = NetSuiteReuireLength.split(",");
-
-            console.log('NetSuiteRequireArray------+++++>>>>>', NetSuiteRequireArray);
-            var NetSuiteReuireLengthSplit = NetSuiteReuireLength.split(",").length;
-            console.log('NetSuiteReuireLengthSplit------+++++>>>>>', NetSuiteReuireLengthSplit);
             var CsvReuireLength = localStorage.getItem('NetSiteMapRequireLengthData');
-            console.log('CsvReuireLength------+++++>>>>>', CsvReuireLength);
             var csvRequirarray = CsvReuireLength ? CsvReuireLength.split(",") : [];
-
-            console.log('csvRequirarray------+++++>>>>>', csvRequirarray);
-            var CsvReuireLengthSplit = CsvReuireLength ? CsvReuireLength.split(",").length : 0;
-            console.log('CsvReuireLengthSplit------+++++>>>>>', CsvReuireLengthSplit);
             var mapedarray = NetSuiteRequireArray.filter(function (element) {
                 return csvRequirarray.includes(element);
             });
@@ -411,14 +374,12 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                         value: true,
                         ignoreFieldChange: true
                     });
-                    console.log('*require is true', 'true');
                 } else {
                     rec.setValue({
                         fieldId: 'custpage_ab_reuiremapdatalength',
                         value: false,
                         ignoreFieldChange: true
                     });
-                    console.log('*require is false', 'false');
                 }
             } else {
                 rec.setValue({
@@ -426,30 +387,24 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     value: true,
                     ignoreFieldChange: true
                 });
-                console.log('*require is false', 'false');
             }
-            console.log("filed change working?")
             var currentRec = context.currentRecord;
             var fieldId = context.fieldId;
-            var val = currentRec.getValue({
+            var selectedRecordForImport = currentRec.getValue({
                 fieldId: 'custpage_ab_record_type'
             });
-            var recordFields = getRecordFields(recordField);
-            console.log("fieldId", fieldId)
             if (fieldId == 'custpage_ab_record_type') {
-                console.log('Valuessss', val);
-                var recordField = rec.getValue({
+                console.log('Valuessss', selectedRecordForImport);
+                rec.getValue({
                     fieldId: 'custpage_ab_record_type'
                 });
-                if (val != null) {
-                    localStorage.setItem('recscan', val);
+                if (selectedRecordForImport != null) {
+                    localStorage.setItem('recscan', selectedRecordForImport);
                 }
-
             }
-            console.log('context1', context);
-            var select = jQuery('input[name="custpage_ab_add"]:checked').val();
-            localStorage.setItem('selectoption', select);
-            console.log('select option', select);
+            var selectAddUpdate = jQuery('input[name="custpage_ab_add"]:checked').val();
+            localStorage.setItem('selectoption', selectAddUpdate);
+            console.log('select option', selectAddUpdate);
             var selectOption = localStorage.getItem('selectoption');
             if (fieldId == 'custpage_ab_add') {
                 rec.setValue({
@@ -476,7 +431,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         if (tableID == 'CSVtblMap') {
             var row = jQuery(e.target).closest('tr');
             jQuery('#CSVtblBody').append(row);
-            sortTable(jQuery('#CSVtbl'), 'asc');
+            commonLib.sortTable(jQuery('#CSVtbl'), 'asc');
         }
         if (tableID == 'NetSuitetbl') {
             var row = jQuery(e.target).closest('tr');
@@ -487,35 +442,13 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         if (tableID == 'NetSuitetblMap') {
             var row = jQuery(e.target).closest('tr');
             jQuery('#NetSuiteTblBody').append(row);
-            sortTable(jQuery('#NetSuitetbl'), 'asc');
+            commonLib.sortTable(jQuery('#NetSuitetbl'), 'asc');
         }
         fieldChanged(rec);
 
     }
-    // function swapRow1(e) {
-    //     // console.log("event12",e)
-    //     jQuery(document).ready(function () {
-    //         jQuery('.hideTr').slideUp(600);
-    //         jQuery('[data-toggle="toggle"]').click(function () {
-    //             if (jQuery(this).parents().next(".hideTr").is(":visible") == true) {
-    //                 // jQuery(this).parents().next('.hideTr').slideUp(600);
-    //                 jQuery(this).parents().next('.hideTr').show("slow");
-    //                 // jQuery(".plusminus" + $(this).children().children().attr("id")).text('+');
-    //                 jQuery(this).css('background-color', 'white');
-    //             }
-    //             else {
-    //                 // jQuery(this).parents().next('.hideTr').slideDown(600);
-    //                 jQuery('.hideTr').slideDown("slow");
-    //                 // jQuery(this).parents().next('.hideTr').slideUp();
-    //                 // jQuery(".plusminus" + $(this).children().children().attr("id")).text('- ');
-    //                 // jQuery(this).css('background-color', '#c1eaff ');
-    //             }
-    //         });
-    //     });
-    // }
-    function swapRow1(e) {
-        // console.log("event12",e)  
-        jQuery('#toggle1').click(function () {
+    function hideLineItems(e) {
+        jQuery('#hideRow').click(function () {
             jQuery('.hideTr').toggle();//this one is working with double click
         });
     }
@@ -541,7 +474,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         console.log("CSV Map length", csvMapLength);
         localStorage.setItem('NetSiteMapRequireLengthData', NetSuiteMapArray);
         localStorage.setItem('CSVMapRequireLengthData', CsvMapArray);
-
         MiddleTableRows();
     }
     function MiddleTableRows() {
@@ -621,22 +553,9 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             });
         }
     }
-    function sortTable(table, order) {
-        var asc = order === 'asc',
-            tbody = table.find('tbody');
-
-        tbody.find('tr').sort(function (a, b) {
-            if (asc) {
-                return jQuery('td:first', a).text().localeCompare(jQuery('td:first', b).text());
-            } else {
-                return jQuery('td:first', b).text().localeCompare(jQuery('td:first', a).text());
-            }
-        }).appendTo(tbody);
-    }
-
     return {
         pageInit: pageInit,
         fieldChanged: fieldChanged,
-        recType: recType
+        selectRecTypeToImportCvs: selectRecTypeToImportCvs
     }
 });

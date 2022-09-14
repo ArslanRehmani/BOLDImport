@@ -2,7 +2,7 @@
  *@NApiVersion 2.0
 *@NScriptType Suitelet
 */
-define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js'], function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS) {
+define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js','../common/ab_lib_common.js'], function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS,commonLib) {
 
     function onRequest(context) {
         var title = 'OnRequestSL::'
@@ -12,17 +12,13 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             title: 'CSV Impot'
         });
         var recStep;
-        var NetsuiteMapData;
-        var csvMapData;
-
-        //client Script call
-
+        var UpdateRecord;
         var assistance = serverWidget.createAssistant({
             title: 'BOLDImport Assistant'
         });
+        //client Script call
         assistance.clientScriptModulePath = '../client/ab_cs_function_csv.js';
         try {
-
             var scanUploadSTP = assistance.addStep({
                 id: 'custpage_ab_scan_step',
                 label: 'Scan & Upload CSV File'
@@ -43,27 +39,13 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 id: 'custpage_ab_savemap',
                 label: 'Save mapping & Start Import'
             });
-
-
             //Select option get here through function from 3rd step and pass parameter to Map reduce
-            var selectOption = getSelectOption(assistance);
-            log.debug({
-                title: 'selectOption ====<<<<bhr',
-                details: selectOption
-            });
-            var internalidObj = internalidOBJ(assistance);
-            log.debug({
-                title: 'internalidObj ====<<<<bhr',
-                details: internalidObj
-            });
+            var selectOption = commonLib.getSelectOption(assistance);
+            var internalidObj = commonLib.internalidOBJ(assistance);
             if (selectOption == 'Update' && internalidObj == '1') {
-                var UpdateRecord = 1;//update record in NS
-                log.debug({
-                    title: 'UpdateRecord ====<<<<bhr',
-                    details: 'UpdateRecord'
-                });
+                UpdateRecord = 1;//update record in NS
             } else {
-                var UpdateRecord = 2;//not update give error if yu want to update rec in NS
+                UpdateRecord = 2;//not update give error if yu want to update rec in NS
             }
             if (assistance.getLastAction() == serverWidget.AssistantSubmitAction.NEXT || assistance.getLastAction() == serverWidget.AssistantSubmitAction.BACK) {
                 if (assistance.currentStep == null) {
@@ -75,40 +57,24 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                     });
                     log.debug(title + 'val', val);
                 }
-                log.debug('assistance.currentStep', assistance.currentStep.id);
                 if (assistance.currentStep.id == "custpage_ab_filemap") {
-
-                    var require = GetThirdStepFieldMapLengthRequire(assistance);
-                    var lenghtEqual = GetThirdStepFieldMapLength(assistance);
-
+                    var require = commonLib.getThirdStepFieldMapLengthRequire(assistance);
+                    var lenghtEqual = commonLib.getThirdStepFieldMapLength(assistance);
                     if ((require == 'true' || require == true) && (lenghtEqual == 'true' || lenghtEqual == true)) {
-                        var createRecordinArray = createRecordInnetsuite(assistance);
-                        var createRecordLineLeveldata = createRecordLineLevelData(assistance);
+                        var createRecordinArray = commonLib.createRecordInnetsuite(assistance);
+                        var createRecordLineLeveldata = commonLib.createRecordLineLevelData(assistance);
                         var objRecord = record.create({
                             type: 'customrecord_ab_maped_record',
                             isDynamic: true
                         });
                         objRecord.setValue('custrecord_ab_maped_record_field', createRecordinArray);
                         objRecord.setValue('custrecord_ab_maped_record_linefield', createRecordLineLeveldata);
-                        var recordId = objRecord.save({
+                        objRecord.save({
                             enableSourcing: true,
                             ignoreMandatoryFields: true
                         });
-                        log.debug({
-                            title: '====> createRecordinArray',
-                            details: createRecordinArray
-                        });
-                        log.debug({
-                            title: 'createRecordLineLeveldata ====> ',
-                            details: createRecordLineLeveldata
-                        });
-                        // var mapedFieldArray = createRecordinArray;
-                        var mapedFieldArray = mapedFieldArrayfunction(assistance);
+                        var mapedFieldArray = commonLib.mapedFieldArrayfunction(assistance);
                         mapedFieldArray = JSON.parse(mapedFieldArray);
-                        log.debug({
-                            title: '====> mapedFieldArray',
-                            details: mapedFieldArray
-                        });
                         var finalArray = [];
                         var NetsuiteIdArray = [];
                         for (var i = 0; i < mapedFieldArray.length; i++) {
@@ -118,21 +84,9 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                             var values = firstobj[firstobjkey];
                             finalArray.push(values);
                         }
-                        log.debug({
-                            title: 'finalArray ====>',
-                            details: finalArray
-                        });
-                        log.debug({
-                            title: 'NetsuiteIdArray ====>',
-                            details: NetsuiteIdArray
-                        });
-                        var rectype = RecordType(assistance);
+                        var rectype = commonLib.recordType(assistance);
                         var rectypetostring = rectype.toString();
-                        var csvDatArray = CSVDatafromSecondStep(assistance);
-                        log.debug({
-                            title: 'csvDatArray ()()()',
-                            details: csvDatArray
-                        });
+                        var csvDatArray = commonLib.csvDatafromSecondStep(assistance);
                         //Create file in File Cabniet to store CSV file data
                         var fileObj = file.create({
                             name: 'CSV Data',
@@ -156,10 +110,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                                 'custscript_ab_select_option': UpdateRecord,
                                 'custscript_ab_line_level_data': createRecordLineLeveldata
                             }
-                        });
-                        log.debug({
-                            title: 'UpdateRecord MR ====>',
-                            details: UpdateRecord
                         });
                         // Submit the map/reduce task
                         var mapReduceId = mapReduce.submit();
@@ -200,7 +150,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             log.debug('currentStepId', currentStepId);
             var tableData = file.load({ id: '../templates/boldimport_table_use.html' });
             indexPageValue = tableData.getContents();
-            log.debug('Templates', indexPageValue);
             switch (currentStepId) {
                 case 'custpage_ab_scan_step':
                     buildFirstStep(assistance);
@@ -212,7 +161,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
 
                 case 'custpage_ab_filemap':
                     buildThirdStep(assistance);
-                    log.debug('buildThirdStep', 'buildThirdStep123');
                     break;
 
                 case 'custpage_ab_fieldmap':
@@ -243,7 +191,7 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 type: serverWidget.FieldType.SELECT,
                 label: 'Record Type'
             });
-            nameFld.isMandatory = true;//arslan
+            nameFld.isMandatory = true;
             var chooseFile = assistance.addField({
                 id: 'custpage_ab_htmlfield',
                 type: serverWidget.FieldType.INLINEHTML,
@@ -253,12 +201,10 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 layoutType: serverWidget.FieldLayoutType.NORMAL
             });
             chooseFile.defaultValue = HTMLInput;
-
         } catch (error) {
             log.error(title + error.name, error.message)
         }
     }
-    //Second step
     function buildSecondStep(assistance) {
         var title = 'buildSecondStep()::';
         try {
@@ -276,13 +222,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 label: 'UPDATE',
                 source: 'Update'
             });
-            var addUpdateFld = assistance.addField({
-                id: 'custpage_ab_add',
-                name: 'csv_ab_btn',
-                type: serverWidget.FieldType.RADIO,
-                label: 'ADD OR UPDATE',
-                source: 'Add_Update'
-            });
             var CSVDataThirdStep = assistance.addField({
                 id: 'custpage_ab_csvdata',
                 type: serverWidget.FieldType.LONGTEXT,
@@ -291,29 +230,19 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             CSVDataThirdStep.updateDisplayType({
                 displayType: serverWidget.FieldDisplayType.HIDDEN
             });
-            log.debug({
-                title: 'CSVDataThirdStep ------->',
-                details: CSVDataThirdStep
-            });
             var selectOption = assistance.addField({
                 id: 'custpage_ab_selectoption',
                 type: serverWidget.FieldType.TEXT,
                 label: 'Select Option'
             });
             selectOption.updateDisplayType({
-                // displayType : serverWidget.FieldDisplayType.NORMAL
                 displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            log.debug({
-                title: 'selectOption ------->',
-                details: selectOption
             });
 
         } catch (error) {
             log.error(title + error.name, error.message)
         }
     }
-    //Third step
     function buildThirdStep(assistance) {
         var title = 'buildThirdStep()::';
         var recordFld, hideFielddata, trueData;
@@ -391,7 +320,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 label: 'Internal ID Update OBJ'
             });
             InternalIDUpdate.updateDisplayType({
-                // displayType : serverWidget.FieldDisplayType.NORMAL
                 displayType: serverWidget.FieldDisplayType.HIDDEN
             });
             log.debug({
@@ -403,7 +331,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             log.error(title + error.name, error.message)
         }
     }
-    //Fourth step
     function buildFourthStep(assistance) {
         var title = 'buildFourthStep()::';
         try {
@@ -427,137 +354,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             btn.defaultValue = '<button> <a onclick="swapRow(event)" title="Delete"></a>View Record</button>';
         } catch (error) {
             log.error(title + error.name, error.message)
-        }
-    }
-    function swapRow(e) {
-        alert('Hello');
-    }
-    function GetThirdStepFieldMapLength(assistance) {
-        var title = 'GetThirdStepFieldMapLength()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var MapLength = recStep3.getValue({
-                id: 'custpage_ab_truedata'
-            });
-            return MapLength
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    function GetThirdStepFieldMapLengthRequire(assistance) {
-        var title = 'GetThirdStepFieldMapLengthRequire()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var require = recStep3.getValue({
-                id: 'custpage_ab_reuiremapdatalength'
-            });
-            return require
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    function createRecordInnetsuite(assistance) {
-        var title = 'createRecordInnetsuite()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var middletablerow = recStep3.getValue({
-                id: 'custpage_ab_middletablerows'
-            });
-            return middletablerow
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    function createRecordLineLevelData(assistance) {
-        var title = 'createRecordLineLevelData()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var lineLevelData = recStep3.getValue({
-                id: 'custpage_ab_line_level_data'
-            });
-            return lineLevelData
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    //arslan
-    function mapedFieldArrayfunction(assistance) {
-        var title = 'mapedFieldArrayfunction()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var middletablerowcsvHeader = recStep3.getValue({
-                id: 'custpage_ab_middletablerows_csv_header'
-            });
-            return middletablerowcsvHeader
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-    }
-    function CSVDatafromSecondStep(assistance) {
-        var recStep123 = assistance.getStep({
-            id: 'custpage_ab_importopt'
-        });
-        var csvData = recStep123.getValue({
-            id: 'custpage_ab_csvdata'
-        });
-        return csvData
-    }
-    function RecordType(assistance) {
-        var title = 'RecordType()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var recTypelocal = recStep3.getValue({
-                id: 'custpage_ab_rectypelocalstorage'
-            });
-            return recTypelocal
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    function getSelectOption(assistance) {
-        var title = 'getSelectOption()::';
-        try {
-            var recStep2 = assistance.getStep({
-                id: 'custpage_ab_importopt'
-            });
-            var selectOption = recStep2.getValue({
-                id: 'custpage_ab_selectoption'
-            });
-            return selectOption
-        } catch (e) {
-            log.debug(title + e.message, e.error);
-        }
-
-    }
-    function internalidOBJ(assistance) {
-        var title = 'internalidOBJ()::';
-        try {
-            var recStep3 = assistance.getStep({
-                id: 'custpage_ab_filemap'
-            });
-            var internalid1or0 = recStep3.getValue({
-                id: 'custpage_ab_internalidid'
-            });
-            return internalid1or0
-        } catch (e) {
-            log.debug(title + e.message, e.error);
         }
     }
     return {

@@ -19,9 +19,7 @@ define(['N/record'], function (record) {
                 log.debug({
                     title: '====> Map Reduce Record Status ID',
                     details: recordId
-                });
-            
-                
+                });    
         } catch (error) {
                 log.error(title + error.name, error.message)
             }

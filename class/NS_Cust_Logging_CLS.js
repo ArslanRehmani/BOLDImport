@@ -13,21 +13,12 @@ define(['N/record','../class/createCSVFile.js'], function (record,createCSVLogfi
                         type: rectype,
                         isDynamic: true
             });
-            
             createRecordinArray = JSON.parse(createRecordinArray);
             for(var i = 0; i < createRecordinArray.length; i++){
                 var FieldSetObj = createRecordinArray[i];
                 var header = FieldSetObj.csvField;
                 var NSid = FieldSetObj.NSField;
                 var val = csvValuesData[header];
-                log.debug({
-                    title: 'val',
-                    details: val
-                });
-                log.debug({
-                    title: 'NSid',
-                    details: NSid
-                });
                 if(header == 'date'){
                     var date = new Date(val);
                     NetsuiteRecordCreate.setValue({
@@ -57,9 +48,10 @@ define(['N/record','../class/createCSVFile.js'], function (record,createCSVLogfi
         },
         Update : function (csvValuesData,finalArray,createRecordinArray,rectype) {
             var title = 'CustLogging() Update::';
+            var loadrec;
             try {
                 log.debug({
-                    title: 'Record create Function Call in CustLogging Update',
+                    title: 'Record Update Function Call in CustLogging Update',
                     details: rectype
                 });
                 rectype = rectype.toString();
