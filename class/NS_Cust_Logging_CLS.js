@@ -1,7 +1,7 @@
 define(['N/record','../class/createCSVFile.js'], function (record,createCSVLogfile) {
     var logError = [];
     return {
-        Create : function (csvValuesData,finalArray,createRecordinArray,rectype) {
+        Create : function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
             var title = 'CustLogging()::';
             try {
                 log.debug({
@@ -46,7 +46,7 @@ define(['N/record','../class/createCSVFile.js'], function (record,createCSVLogfi
                 log.error(title + error.name, error.message);
             }
         },
-        Update : function (csvValuesData,finalArray,createRecordinArray,rectype) {
+        Update : function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
             var title = 'CustLogging() Update::';
             var loadrec;
             try {

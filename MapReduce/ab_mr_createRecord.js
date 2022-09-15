@@ -25,9 +25,6 @@ define(['N/log', 'N/runtime', 'N/file', '../Library/Controller.js'], function (l
             var rectype = runtime.getCurrentScript().getParameter({
                 name: 'custscript_ab_rectype'
             });
-            var finalArray = runtime.getCurrentScript().getParameter({
-                name: 'custscript_ab_cvs_final_header_array'
-            });
             var createRecordinArray = runtime.getCurrentScript().getParameter({
                 name: 'custscript_ab_record_id_array'
             });
@@ -38,7 +35,7 @@ define(['N/log', 'N/runtime', 'N/file', '../Library/Controller.js'], function (l
                 name: 'custscript_ab_line_level_data'
             });
             //Call Controller class that create records in NS
-            ControllerLib.recTypeSwitch(csvValuesData,finalArray,createRecordinArray,rectype,selectOption,LineLevelData);
+            ControllerLib.recTypeSwitch(csvValuesData,createRecordinArray,rectype,selectOption,LineLevelData);
         } catch (ex) {
             log.error('Map error: ', ex.message);
         }

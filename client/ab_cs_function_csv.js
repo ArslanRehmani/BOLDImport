@@ -2,7 +2,7 @@
  *@NApiVersion 2.0
 *@NScriptType ClientScript
 */
-define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js','../common/ab_lib_common.js'], function (record, search, currentRecord, importRecordCLS, convertCSVLIB,commonLib) {
+define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js', '../common/ab_lib_common.js', '../common/ab_lib_cs_fun.js'], function (record, search, currentRecord, importRecordCLS, convertCSVLIB, commonLib, csFunLib) {
 
     function pageInit(context) {
         try {
@@ -33,7 +33,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                 }
             }
             if (recordField) {
-                var recordFields = getRecordFields(recordField)
+                var recordFields = csFunLib.getRecordFields(recordField);
                 if (recordFields.bodyfields.length) {
                     console.log('if stat ----->', recordFields.bodyfields.length);
                     var recordFieldVal = window.nlapiGetFieldValue('custpage_hidden_data_field')
@@ -161,20 +161,22 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody" >';
-                    if (recordFields.sublistFields.item.length > 0) {
-                        for (var i = 0; i <= recordFields.sublistFields.item.length - 1; i++) {
-                            var datarec = recordFields.sublistFields.item[i];
-                            var mandatoryData = datarec.isMandator;
-                            var staric = '*(required)';
-                            if (mandatoryData == true) {
-                                html += '<tr class="hideTr">\
+                    if (recordFields.sublistFields.item) {
+                        if (recordFields.sublistFields.item.length > 0) {
+                            for (var i = 0; i <= recordFields.sublistFields.item.length - 1; i++) {
+                                var datarec = recordFields.sublistFields.item[i];
+                                var mandatoryData = datarec.isMandator;
+                                var staric = '*(required)';
+                                if (mandatoryData == true) {
+                                    html += '<tr class="hideTr">\
                                             <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + "<span> <strong>lineItem : </strong> </span>" + datarec.name + '' + staric + '</td>\
                                             </tr>'
-                                NetSuiteArray.push(datarec.id);
-                            } else {
-                                html += '<tr class="hideTr">\
+                                    NetSuiteArray.push(datarec.id);
+                                } else {
+                                    html += '<tr class="hideTr">\
                                             <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '</td>\
                                             </tr>'
+                                }
                             }
                         }
                     }
@@ -303,34 +305,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             }
         } catch (e) {
             log.debug(e.message);
-        }
-    }
-    //funtion call from suitelet
-    function getRecordFields(recID) {
-        var title = 'getRecordFields()::';
-        var fields, rec, rank;
-        try {
-            rec = record.create({
-                type: recID,
-                isDynamic: true,
-            });
-            console.log('recID', recID);
-            console.log('rec', rec);
-            if (rec) {
-                console.log('fields before', fields);
-                fields = convertCSVLIB.getRecFields(rec);
-                console.log('fields after', fields);
-
-                if (fields.bodyfields.length) {
-                    return fields;
-                } else {
-                    throw new Error('Fields not found please check record id on import custom records');
-                }
-            } else {
-                throw new Error('Record Not defined please check record id on import custom records');
-            }
-        } catch (error) {
-            log.error(title + error.name, error.message)
         }
     }
 

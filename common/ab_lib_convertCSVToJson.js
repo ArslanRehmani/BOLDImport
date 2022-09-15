@@ -24,101 +24,41 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         console.log('dataCSSV', data);
                         var lines = data.split("\n")
                         var csvValue = self.csvJSON(data);
-                        //     var csvValue = self.csvJSON(data),
-                        //     groupData = csvValue.reduce(function (r, a) {
-                        //         r[a.entity] = r[a.entity] || [];
-                        //         r[a.entity].push(a);
-                        //         return r;
-                        //     }, Object.create(null));
-
-                        // console.log('***groupData***',groupData);
                         console.log('csvValue', csvValue);
                         console.log('e.target.result', lines);
-                        // console.log('lines[0]', lines[0]);
-                        // localStorage.setItem("csvDataGroupHeaders", JSON.stringify(lines[0]));
-                        // jQuery.ajax({
-                        //     type: "POST",
-                        //     url: serverURl + "&recordType=" + window.BOLDImportRecordType,//updateQueryStringParameter(serverURl + "&parseCSV=true", 'configId', configId),
-                        //     data: "fileData=" + data + "&fileName=" + file.name.toLowerCase(),
-                        //     success: function (dataObj) {
-                        //         // loaderDiv.style.display = "none";
-                        //         jQuery('#submitter').click()
-                        //     }
-                        // });
                     };
                     reader.readAsText(file);
                 } else {
-                    // loaderDiv.style.display = "none";
                     alert("This browser does not support HTML5.");
                 }
             } else {
-                // loaderDiv.style.display = "none";
                 alert("Please upload a valid CSV file.");
             }
-            //}else{
-            // alert(errorMessage);
-            // }
             return false;
         },
         csvJSON: function csvJSON(csv) {
-
             var lines = csv.split("\r");
-
             var result = [];
-
             // NOTE: If your columns contain commas in their values, you'll need
             // to deal with those before doing the next step
             // (you might convert them to &&& or something, then covert them back later)
             // jsfiddle showing the issue https://jsfiddle.net/
             var headers = lines[0].split(",");
-            console.log('***headers***', headers);
             for (var i = 1; i < lines.length; i++) {
-
                 var obj = {};
                 var currentline = lines[i].replace('\n', '').split(",");
-                // console.log('***currentline***', currentline);
                 for (var j = 0; j < headers.length; j++) {
                     if (headers[j] && currentline[j]) {
                         obj[headers[j]] = currentline[j];
                     }
-                    /*if (obj [j] == obj [j]){
-                        obj.lineID = array of items
-                    }
-
-                    a*/
                 }
                 if (Object.keys(obj).length) {
-
                     result.push(obj);
                 }
-
             }
             if (result.length) {
                 localStorage.setItem("csvData", JSON.stringify(result));
                 console.log('***result***', result);
-                // var result1 = result.reduce(function (r, a) {
-                //     r[a.SOID] = r[a.SOID] || [];
-                //     r[a.SOID].push(a);
-                //     return r;
-                // }, Object.create(null));
-                //previouly result CSV is working now result1 is grouping one CSV
-                // console.log('***resultGrouped***', result1);
-                // localStorage.setItem("csvDataGroup", JSON.stringify(result1));
-                //fuifill first condition group on Sales order ID
-                // console.log('###FirstGrouped###', Object.keys(result1));
-                // console.log('###result1.S01###', result1.S01);
-                // var firstLineItemgrouped = result1.S01;
-                // console.log('###firstLineItemgrouped###', firstLineItemgrouped);
-                // var resultLineGroup = firstLineItemgrouped.reduce(function (r, a) {
-                //     r[a.LineID] = r[a.LineID] || [];
-                //     r[a.LineID].push(a);
-                //     return r;
-                // }, Object.create(null));
-
-                // console.log('***resultLineGroup12***', resultLineGroup);
-                // result1['lineData'] = resultLineGroup;
-                // console.log('***FinalGroupLine***', result1.lineData = resultLineGroup);
-
             } else {
                 alert('Selected CSV File is empty');
                 jQuery('#file').val('');
@@ -141,7 +81,6 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     sublistId: 'item'
                 });
                 console.log('items', items);
-
                 if (fields.length) {
                     filteredFields = fields.filter(function (val) {
                         for (var i = 0; i < excludedFieldsArray.length; i++) {
@@ -157,7 +96,6 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                 filteredFields = []
                 console.log('items.length', items.length);
                 if (items.length) {
-
                     for (var i = 0; i < items.length; i++) {
                         fieldfilterObj = rec.getSublistField({
                             sublistId: 'item',
@@ -198,15 +136,10 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                 bodyfields = filteredFields;
                 fieldObj.bodyfields = bodyfields;
                 fieldObj.sublistFields = sublistFields;
-
-                // if(newfields.length){
-
-                // }
             } catch (error) {
                 log.error(title + error.name, error.message);
             }
             return fieldObj || [];
-
         }
     }
 });

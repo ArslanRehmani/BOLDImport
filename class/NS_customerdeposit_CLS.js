@@ -1,7 +1,7 @@
 define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLogfile) {
     var logError = [];
     return {
-        Create: function (csvValuesData, finalArray, createRecordinArray, rectype) {
+        Create: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
             var title = 'customerdeposit()::';
             try {
                 log.debug({
@@ -13,14 +13,19 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     type: rectype,
                     isDynamic: true
                 });
-
+                var csvValuesDataGroupOBJ = csvValuesData[0];
                 createRecordinArray = JSON.parse(createRecordinArray);
                 for (var i = 0; i < createRecordinArray.length; i++) {
                     var FieldSetObj = createRecordinArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
-                    var val = csvValuesData[header];
-                    if (header == 'date') {
+                    // var val = csvValuesData[header];
+                    var val = csvValuesDataGroupOBJ[header];
+                    log.audit({
+                        title: 'NSID' + 'val',
+                        details: NSid + val
+                    });
+                    if (header == 'Date') {
                         var date = new Date(val);
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid,
@@ -47,7 +52,7 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 log.error(title + error.name, error.message);
             }
         },
-        Update: function (csvValuesData, finalArray, createRecordinArray, rectype) {
+        Update: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
             var title = 'customerdeposit() Update::';
             var loadrec;
             try {

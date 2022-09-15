@@ -2,7 +2,7 @@
  *@NApiVersion 2.0
 *@NScriptType Suitelet
 */
-define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js','../common/ab_lib_common.js'], function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS,commonLib) {
+define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js', '../common/ab_lib_common.js', '../common/ab_lib_stepper.js', '../common/ab_lib_SL_fun.js', '../common/ab_lib_mr_fun.js'], function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS, commonLib, addStepperLib, SlFunLib,mrFunLib) {
 
     function onRequest(context) {
         var title = 'OnRequestSL::'
@@ -11,7 +11,6 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
         var form = serverWidget.createForm({
             title: 'CSV Impot'
         });
-        var recStep;
         var UpdateRecord;
         var assistance = serverWidget.createAssistant({
             title: 'BOLDImport Assistant'
@@ -48,81 +47,32 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                 UpdateRecord = 2;//not update give error if yu want to update rec in NS
             }
             if (assistance.getLastAction() == serverWidget.AssistantSubmitAction.NEXT || assistance.getLastAction() == serverWidget.AssistantSubmitAction.BACK) {
-                if (assistance.currentStep == null) {
-                    recStep = assistance.getStep({
-                        id: 'custpage_ab_scan_step'
-                    });
-                    var val = recStep.getValue({
-                        id: 'custpage_ab_htmlfield',
-                    });
-                    log.debug(title + 'val', val);
-                }
                 if (assistance.currentStep.id == "custpage_ab_filemap") {
                     var require = commonLib.getThirdStepFieldMapLengthRequire(assistance);
                     var lenghtEqual = commonLib.getThirdStepFieldMapLength(assistance);
                     if ((require == 'true' || require == true) && (lenghtEqual == 'true' || lenghtEqual == true)) {
                         var createRecordinArray = commonLib.createRecordInnetsuite(assistance);
                         var createRecordLineLeveldata = commonLib.createRecordLineLevelData(assistance);
-                        var objRecord = record.create({
-                            type: 'customrecord_ab_maped_record',
-                            isDynamic: true
-                        });
-                        objRecord.setValue('custrecord_ab_maped_record_field', createRecordinArray);
-                        objRecord.setValue('custrecord_ab_maped_record_linefield', createRecordLineLeveldata);
-                        objRecord.save({
-                            enableSourcing: true,
-                            ignoreMandatoryFields: true
-                        });
+                        SlFunLib.createMapFieldRecords(createRecordinArray, createRecordLineLeveldata)
                         var mapedFieldArray = commonLib.mapedFieldArrayfunction(assistance);
                         mapedFieldArray = JSON.parse(mapedFieldArray);
-                        var finalArray = [];
-                        var NetsuiteIdArray = [];
-                        for (var i = 0; i < mapedFieldArray.length; i++) {
-                            var firstobj = mapedFieldArray[i];
-                            var firstobjkey = Object.keys(firstobj);
-                            NetsuiteIdArray.push(firstobjkey);
-                            var values = firstobj[firstobjkey];
-                            finalArray.push(values);
-                        }
                         var rectype = commonLib.recordType(assistance);
                         var rectypetostring = rectype.toString();
                         var csvDatArray = commonLib.csvDatafromSecondStep(assistance);
                         //Create file in File Cabniet to store CSV file data
-                        var fileObj = file.create({
-                            name: 'CSV Data',
-                            fileType: file.Type.JSON,
-                            contents: csvDatArray,
-                            folder: 14272,
-                            isOnline: true
-                        });
-                        // Save the file
-                        var id = fileObj.save();
-                        //Call MapReduce Script for record creation
-                        var mapReduce = task.create({
-                            taskType: task.TaskType.MAP_REDUCE,
-                            scriptId: 'customscript_ap_mr_create_record_csv',
-                            deploymentId: 'customdeploy_ap_mr_create_record_csv',
-                            params: {
-                                'custscript_ab_csv_data_length': id,
-                                'custscript_ab_rectype': rectypetostring,
-                                'custscript_ab_cvs_final_header_array': finalArray,
-                                'custscript_ab_record_id_array': createRecordinArray,
-                                'custscript_ab_select_option': UpdateRecord,
-                                'custscript_ab_line_level_data': createRecordLineLeveldata
-                            }
-                        });
-                        // Submit the map/reduce task
-                        var mapReduceId = mapReduce.submit();
+                        var csvFileId = SlFunLib.createCSVFileInCabinet(csvDatArray);
                         log.debug({
-                            title: 'mapReduceId ====>',
-                            details: mapReduceId
+                            title: 'csvFileId',
+                            details: csvFileId
                         });
-                        var summary1 = task.checkStatus({
+                        //Call MapReduce Script for record creation & return id
+                        var mapReduceId = mrFunLib.mapReduceTaskStatus(csvFileId,rectypetostring,createRecordinArray,UpdateRecord,createRecordLineLeveldata);
+                        var mrSummary = task.checkStatus({
                             taskId: mapReduceId
                         });
-                        var taskStatus = summary1.status;
-                        log.debug(title + 'Task Status', summary1.status);
-                        MRstatusCLS.Create(mapReduceId, taskStatus, id);
+                        var taskStatus = mrSummary.status;
+                        log.debug(title + 'Task Status', mrSummary.status);
+                        MRstatusCLS.Create(mapReduceId, taskStatus, csvFileId);
 
                         assistance.currentStep = assistance.getNextStep();
                     } else {
@@ -152,19 +102,19 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
             indexPageValue = tableData.getContents();
             switch (currentStepId) {
                 case 'custpage_ab_scan_step':
-                    buildFirstStep(assistance);
+                    addStepperLib.buildFirstStep(assistance);
                     break;
 
                 case 'custpage_ab_importopt':
-                    buildSecondStep(assistance);
+                    addStepperLib.buildSecondStep(assistance);
                     break;
 
                 case 'custpage_ab_filemap':
-                    buildThirdStep(assistance);
+                    addStepperLib.buildThirdStep(assistance);
                     break;
 
                 case 'custpage_ab_fieldmap':
-                    buildFourthStep(assistance);
+                    addStepperLib.buildFourthStep(assistance);
                     break;
 
                 case 'custpage_ab_savemap':
@@ -175,185 +125,9 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                     });
                     break;
             }
-
             response.writePage(assistance);
         } catch (error) {
             log.debug('ERROR', error.message);
-        }
-    }
-    //First step
-    function buildFirstStep(assistance) {
-        var title = 'buildFirstStep()::';
-        var HTMLInput = '<input  class="box__file" type="file" id="file" accept=".csv" onchange="getJsonCSV();">'
-        try {
-            var nameFld = assistance.addField({
-                id: 'custpage_ab_record_type',
-                type: serverWidget.FieldType.SELECT,
-                label: 'Record Type'
-            });
-            nameFld.isMandatory = true;
-            var chooseFile = assistance.addField({
-                id: 'custpage_ab_htmlfield',
-                type: serverWidget.FieldType.INLINEHTML,
-                label: 'Intelisys'
-            });
-            chooseFile.updateLayoutType({
-                layoutType: serverWidget.FieldLayoutType.NORMAL
-            });
-            chooseFile.defaultValue = HTMLInput;
-        } catch (error) {
-            log.error(title + error.name, error.message)
-        }
-    }
-    function buildSecondStep(assistance) {
-        var title = 'buildSecondStep()::';
-        try {
-            var addFld = assistance.addField({
-                id: 'custpage_ab_add',
-                name: 'csv_ab_btn',
-                type: serverWidget.FieldType.RADIO,
-                label: 'ADD',
-                source: 'Add'
-            });
-            var updateFld = assistance.addField({
-                id: 'custpage_ab_add',
-                name: 'csv_ab_btn',
-                type: serverWidget.FieldType.RADIO,
-                label: 'UPDATE',
-                source: 'Update'
-            });
-            var CSVDataThirdStep = assistance.addField({
-                id: 'custpage_ab_csvdata',
-                type: serverWidget.FieldType.LONGTEXT,
-                label: 'CSV Data'
-            });
-            CSVDataThirdStep.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var selectOption = assistance.addField({
-                id: 'custpage_ab_selectoption',
-                type: serverWidget.FieldType.TEXT,
-                label: 'Select Option'
-            });
-            selectOption.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-
-        } catch (error) {
-            log.error(title + error.name, error.message)
-        }
-    }
-    function buildThirdStep(assistance) {
-        var title = 'buildThirdStep()::';
-        var recordFld, hideFielddata, trueData;
-        try {
-            recordFld = assistance.addField({
-                id: 'custpage_ab_record_type',
-                type: serverWidget.FieldType.TEXT,
-                label: 'Record Type'
-            });
-            recordFld.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            hideFielddata = assistance.addField({
-                id: 'custpage_hidden_data_field',
-                type: serverWidget.FieldType.INLINEHTML,
-                label: 'Ns fields'
-            });
-            hideFielddata.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.NORMAL
-            });
-            hideFielddata.defaultValue = '<h1>Fields are loading please wait ... </h1>';
-
-            trueData = assistance.addField({
-                id: 'custpage_ab_truedata',
-                type: serverWidget.FieldType.TEXT,
-                label: 'Map Fields...'
-            });
-            trueData.isMandatory = true;
-            trueData.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var requireMapDataLength = assistance.addField({
-                id: 'custpage_ab_reuiremapdatalength',
-                type: serverWidget.FieldType.TEXT,
-                label: '*reuire'
-            });
-            requireMapDataLength.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var middletablesrow = assistance.addField({
-                id: 'custpage_ab_middletablerows',
-                type: serverWidget.FieldType.LONGTEXT,
-                label: 'Middle Table Rows'
-            });
-            middletablesrow.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var LineLevelData = assistance.addField({
-                id: 'custpage_ab_line_level_data',
-                type: serverWidget.FieldType.LONGTEXT,
-                label: 'Middle Table Rows'
-            });
-            LineLevelData.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var middletablesrowCsvHeader = assistance.addField({
-                id: 'custpage_ab_middletablerows_csv_header',
-                type: serverWidget.FieldType.LONGTEXT,
-                label: 'Middle Table Rows'
-            });
-            middletablesrowCsvHeader.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var recType = assistance.addField({
-                id: 'custpage_ab_rectypelocalstorage',
-                type: serverWidget.FieldType.TEXT,
-                label: 'Record Type From Local storage'
-            });
-            recType.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            var InternalIDUpdate = assistance.addField({
-                id: 'custpage_ab_internalidid',
-                type: serverWidget.FieldType.TEXT,
-                label: 'Internal ID Update OBJ'
-            });
-            InternalIDUpdate.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.HIDDEN
-            });
-            log.debug({
-                title: 'InternalIDUpdate ------->',
-                details: InternalIDUpdate
-            });
-
-        } catch (error) {
-            log.error(title + error.name, error.message)
-        }
-    }
-    function buildFourthStep(assistance) {
-        var title = 'buildFourthStep()::';
-        try {
-            var filedsFld = assistance.addField({
-                id: 'custpage_ab_file',
-                type: serverWidget.FieldType.INLINEHTML,
-                label: 'Records Successfully Created'
-            });
-            filedsFld.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.NORMAL
-            });
-            filedsFld.defaultValue = '<h1 style="color: green;">Records Successfully Created</h1>';
-            var btn = assistance.addField({
-                id: 'custpage_ab_btn',
-                type: serverWidget.FieldType.INLINEHTML,
-                label: 'Records btn'
-            });
-            btn.updateDisplayType({
-                displayType: serverWidget.FieldDisplayType.NORMAL
-            });
-            btn.defaultValue = '<button> <a onclick="swapRow(event)" title="Delete"></a>View Record</button>';
-        } catch (error) {
-            log.error(title + error.name, error.message)
         }
     }
     return {
