@@ -1,4 +1,4 @@
-define(['N/record','N/log','N/file'], function (record,log,file) {
+define(['N/record','N/log','N/file'], function (record,log,file,url) {
     return {
         createCSVFile : function (errorArray, properties) {
             var title = 'createCSVFile()::';
@@ -51,7 +51,7 @@ define(['N/record','N/log','N/file'], function (record,log,file) {
         
                 //Create file in File Cabniet to store CSV file data
                 var csvFile = file.create({
-                    name: 'Error file',
+                    name: 'Error file' + currentTimestamp,
                     fileType: file.Type.CSV,
                     contents: csvFullData,
                     folder: 14272,
@@ -64,6 +64,7 @@ define(['N/record','N/log','N/file'], function (record,log,file) {
                         title: 'Error file folder ID',
                         details: id
                     });
+                    
                 // csvFile.setFolder(ERROR_LOG_FOLDER);
                 // //internal id of the folder in the file cabinet
                 // var id = nlapiSubmitFile(csvFile);

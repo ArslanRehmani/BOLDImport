@@ -2,7 +2,8 @@
  *@NApiVersion 2.0
 *@NScriptType Suitelet
 */
-define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js', '../common/ab_lib_common.js', '../common/ab_lib_stepper.js', '../common/ab_lib_SL_fun.js', '../common/ab_lib_mr_fun.js'], function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS, commonLib, addStepperLib, SlFunLib,mrFunLib) {
+define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js', '../common/ab_lib_common.js', '../common/ab_lib_stepper.js', '../common/ab_lib_SL_fun.js', '../common/ab_lib_mr_fun.js', 'N/runtime'],
+ function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS, commonLib, addStepperLib, SlFunLib,mrFunLib,runtime) {
 
     function onRequest(context) {
         var title = 'OnRequestSL::'
@@ -14,6 +15,9 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
         var UpdateRecord;
         var assistance = serverWidget.createAssistant({
             title: 'BOLDImport Assistant'
+        });
+        var csvDataFolderID = runtime.getCurrentScript().getParameter({
+            name: 'custscript_csv_data_folder_id'
         });
         //client Script call
         assistance.clientScriptModulePath = '../client/ab_cs_function_csv.js';
@@ -60,7 +64,7 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                         var rectypetostring = rectype.toString();
                         var csvDatArray = commonLib.csvDatafromSecondStep(assistance);
                         //Create file in File Cabniet to store CSV file data
-                        var csvFileId = SlFunLib.createCSVFileInCabinet(csvDatArray);
+                        var csvFileId = SlFunLib.createCSVFileInCabinet(csvDataFolderID,csvDatArray);
                         log.debug({
                             title: 'csvFileId',
                             details: csvFileId
@@ -98,6 +102,7 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
 
             var currentStepId = assistance.currentStep == null ? 'custpage_ab_scan_step' : assistance.currentStep.id;
             log.debug('currentStepId', currentStepId);
+            var id = parseInt(csvFileId);
             var tableData = file.load({ id: '../templates/boldimport_table_use.html' });
             indexPageValue = tableData.getContents();
             switch (currentStepId) {
@@ -115,6 +120,10 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
 
                 case 'custpage_ab_fieldmap':
                     addStepperLib.buildFourthStep(assistance);
+                    form.addButton({
+                        id : 'buttonid',
+                        label : 'Test'
+                    });
                     break;
 
                 case 'custpage_ab_savemap':

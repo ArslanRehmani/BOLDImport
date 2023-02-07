@@ -13,12 +13,14 @@ define(['N/record','N/file','../class/createCSVFile.js'], function (record,file,
                         type: rectype,
                         isDynamic: true
             });
+            var csvValuesDataGroupOBJ = csvValuesData[0];
             createRecordinArray = JSON.parse(createRecordinArray);
             for(var i = 0; i < createRecordinArray.length; i++){
                 var FieldSetObj = createRecordinArray[i];
                 var header = FieldSetObj.csvField;
                 var NSid = FieldSetObj.NSField;
-                var val = csvValuesData[header];
+                // var val = csvValuesData[header];
+                var val = csvValuesDataGroupOBJ[header];
                 NetsuiteRecordCreate.setValue({
                     fieldId: NSid,//netsuite field id's
                     value: val // Netsuite Field Value

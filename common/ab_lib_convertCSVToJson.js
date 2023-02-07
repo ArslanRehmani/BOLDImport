@@ -67,9 +67,10 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
             //return result; //JavaScript object
             return JSON.stringify(result); //JSON
         },
-        getRecFields: function getRecFields(rec) {
+        getRecFields: function getRecFields(rec, recID) {
             var title = 'getRecFields()::';
-            log.debug(title + "rec", rec);
+            console.log(title + "rec", rec);
+            console.log('recID***():::', recID);//bintransfer
             var newfields = [];
             var fieldObj = {};
             var fields, bodyfields, filteredFields = [], sublistFields = {}, items = [], excludedFieldsArray, fieldfilterObj, obj = {};
@@ -77,9 +78,16 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                 excludedFieldsArray = fieldsExcluded.bodyFields;
                 fields = rec.getFields();
                 console.log('fields', fields);
-                items = rec.getSublistFields({
-                    sublistId: 'item'
-                });
+                if (recID == 'bintransfer') {
+                    items = rec.getSublistFields({
+                        sublistId: 'inventory'
+                    });
+                } else {
+                    items = rec.getSublistFields({
+                        sublistId: 'item'
+                    });
+                }
+
                 console.log('items', items);
                 if (fields.length) {
                     filteredFields = fields.filter(function (val) {
@@ -97,11 +105,19 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                 console.log('items.length', items.length);
                 if (items.length) {
                     for (var i = 0; i < items.length; i++) {
-                        fieldfilterObj = rec.getSublistField({
-                            sublistId: 'item',
-                            fieldId: items[i],
-                            line: 0
-                        });
+                        if (recID == 'bintransfer') {
+                            fieldfilterObj = rec.getSublistField({
+                                sublistId: 'inventory',
+                                fieldId: items[i],
+                                line: 0
+                            });
+                        } else {
+                            fieldfilterObj = rec.getSublistField({
+                                sublistId: 'item',
+                                fieldId: items[i],
+                                line: 0
+                            })
+                        }
                         // console.log('fieldfilterObj', fieldfilterObj);
                         if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly) {
                             obj = {}

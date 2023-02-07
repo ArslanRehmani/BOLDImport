@@ -168,6 +168,9 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                 var mandatoryData = datarec.isMandator;
                                 var staric = '*(required)';
                                 if (mandatoryData == true) {
+                                    if(recordField =="workorder"){
+                                        continue;
+                                    }
                                     html += '<tr class="hideTr">\
                                             <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + "<span> <strong>lineItem : </strong> </span>" + datarec.name + '' + staric + '</td>\
                                             </tr>'
@@ -527,9 +530,18 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             });
         }
     }
+    function ViewError(e){
+        var title = 'viewError(::)';
+        try{
+            alert('Errrrr0rr');
+        } catch(e) {
+            log.debug('Exception ' +title, e.message);
+        }  
+    }
     return {
         pageInit: pageInit,
         fieldChanged: fieldChanged,
+        ViewError: ViewError,
         selectRecTypeToImportCvs: selectRecTypeToImportCvs
     }
 });

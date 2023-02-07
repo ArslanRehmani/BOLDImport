@@ -25,7 +25,7 @@ define(['N/log','N/record','N/file'], function (log,record,file) {
                 log.error(title + error.name, error.message)
             }
         },
-        createCSVFileInCabinet: function (csvArray){
+        createCSVFileInCabinet: function (csvDataFolderID,csvArray){
             var title = 'createCSVFileInCabinet(::)';
             try{
                 //Create file in File Cabniet to store CSV file data
@@ -33,7 +33,7 @@ define(['N/log','N/record','N/file'], function (log,record,file) {
                     name: 'CSV Data',
                     fileType: file.Type.JSON,
                     contents: csvArray,
-                    folder: 14272,
+                    folder: csvDataFolderID,
                     isOnline: true
                 });
                 // Save the file

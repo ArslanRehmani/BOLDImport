@@ -12,7 +12,7 @@ define(['N/log', 'N/runtime', 'N/file', '../Library/Controller.js'], function (l
             var CSVData = file.load({ id: csvDataFolderID });
             CSVDataValue = CSVData.getContents();
             CSVDataValue = JSON.parse(CSVDataValue);
-            var groupedSOID = groupArrayOfObjects(CSVDataValue,"SOID");
+            var groupedSOID = groupArrayOfObjects(CSVDataValue,"Unique ID");
             // return CSVDataValue;
             return groupedSOID;
         } catch (ex) {

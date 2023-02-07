@@ -1,5 +1,5 @@
 
-define(['N/log','N/ui/serverWidget'], function (log,serverWidget) {
+define(['N/log','N/ui/serverWidget','N/url'], function (log,serverWidget,url) {
     return {
         fields:{
             stepId: 'custpage_ab_filemap'
@@ -164,7 +164,7 @@ define(['N/log','N/ui/serverWidget'], function (log,serverWidget) {
                 filedsFld.updateDisplayType({
                     displayType: serverWidget.FieldDisplayType.NORMAL
                 });
-                filedsFld.defaultValue = '<h1 style="color: green;">Records Successfully Created</h1>';
+                filedsFld.defaultValue = '<h1 style="color: green;">CSV Import Process Completed</h1>';
                 var btn = assistance.addField({
                     id: 'custpage_ab_btn',
                     type: serverWidget.FieldType.INLINEHTML,
@@ -173,7 +173,7 @@ define(['N/log','N/ui/serverWidget'], function (log,serverWidget) {
                 btn.updateDisplayType({
                     displayType: serverWidget.FieldDisplayType.NORMAL
                 });
-                btn.defaultValue = '<button> <a onclick="swapRow(event)" title="Delete"></a>View Record</button>';
+                btn.defaultValue = '<button> <a onclick="ViewError(event)" title="View Errors"></a>View Errors</button>';
             } catch (error) {
                 log.error(title + error.name, error.message)
             }

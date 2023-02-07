@@ -11,7 +11,7 @@ define(['N/log','N/record','N/file','../common/ab_lib_convertCSVToJson.js'], fun
                 });
                 if (rec) {
                     console.log('fields before', fields);
-                    fields = convertCSVLIB.getRecFields(rec);
+                    fields = convertCSVLIB.getRecFields(rec,recID);
                     console.log('fields after', fields);
                     if (fields.bodyfields.length) {
                         return fields;
