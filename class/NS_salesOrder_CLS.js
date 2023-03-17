@@ -1,7 +1,7 @@
-define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLogfile) {
+define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, createCSVLogfile, search) {
     var logError = [];
     return {
-        Create: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
+        Create: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
             var title = 'SalesOrder()::';
             try {
                 log.debug({
@@ -79,9 +79,68 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
 
             } catch (error) {
                 log.error(title + error.name, error.message);
+                var obj = {};
+                obj.id = error.name;
+                obj.error = error.message;
+                logError.push(obj);
+            }
+            log.debug({
+                title: 'logErrorUPDATE',
+                details: logError
+            });
+            if (logError && logError.length > 0) {
+                log.debug({
+                    title: 'LOG_ARRAY',
+                    details: JSON.stringify(logError)
+                });
+                var properties = Object.keys(logError[0]);
+                log.debug({
+                    title: 'properties',
+                    details: JSON.stringify(properties)
+                });
+                // call class that create error file
+                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties);
+                log.debug({
+                    title: 'created and saved the log file: ',
+                    details: csvFileCreated
+                });
+                //Most Recent Map Reduce Status Record search
+                var customrecord_ab_mr_record_statusSearchObj = search.create({
+                    type: "customrecord_ab_mr_record_status",
+                    filters:
+                        [
+                            ["created", "within", "today"]
+                        ],
+                    columns:
+                        [
+                            search.createColumn({ name: "scriptid", label: "Script ID" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_date", label: "Date" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_mr_summary", label: "Map Reduce Summary" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSD Data ID" }),
+                            search.createColumn({
+                                name: "created",
+                                sort: search.Sort.DESC,
+                                label: "Date Created"
+                            })
+                        ]
+                });
+                var results = customrecord_ab_mr_record_statusSearchObj.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+                var RecordID = results[0].id;
+                var mapReduceRecObj = record.load({
+                    type: 'customrecord_ab_mr_record_status',
+                    id: parseInt(RecordID)
+                });
+                mapReduceRecObj.setValue({
+                    fieldId: 'custrecord_ab_error_file_id',
+                    value: csvFileCreated
+                });
+                mapReduceRecObj.save();
             }
         },
-        Update: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
+        Update: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
             var title = 'SalesOrder() Update::';
             var loadrec;
             try {
@@ -98,12 +157,16 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     var NSid = FieldSetObj.NSField;
                     var val = csvValuesData[header];
                     if (NSid == 'id') {
+                       log.debug({
+                            title: 'NSid' + ' ' + 'NSval',
+                            details: NSid + ' ' + val
+                        });
                         loadrec = csvValuesData[header];
                     }
                 }
                 var NetsuiteRecordCreate = record.load({
                     type: rectype,
-                    id: loadrec,
+                    id: parseInt(loadrec),
                     isDynamic: true
                 });
                 for (var i = 0; i < createRecordinArray.length; i++) {
@@ -170,23 +233,56 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 title: 'logErrorUPDATE',
                 details: logError
             });
-            if (logErrorArray && logErrorArray.length > 0) {
+            if (logError && logError.length > 0) {
                 log.debug({
                     title: 'LOG_ARRAY',
-                    details: JSON.stringify(logErrorArray)
+                    details: JSON.stringify(logError)
                 });
-                var properties = Object.keys(logErrorArray[0]);
+                var properties = Object.keys(logError[0]);
                 log.debug({
                     title: 'properties',
                     details: JSON.stringify(properties)
                 });
                 // call class that create error file
-                var csvFileCreated = createCSVLogfile.createCSVFile(logErrorArray, properties);
-                createCSVLogfile.createCSVFile(logErrorArray, properties);
+                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties);
                 log.debug({
                     title: 'created and saved the log file: ',
                     details: csvFileCreated
                 });
+                //Most Recent Map Reduce Status Record search
+                var customrecord_ab_mr_record_statusSearchObj = search.create({
+                    type: "customrecord_ab_mr_record_status",
+                    filters:
+                        [
+                            ["created", "within", "today"]
+                        ],
+                    columns:
+                        [
+                            search.createColumn({ name: "scriptid", label: "Script ID" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_date", label: "Date" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_mr_summary", label: "Map Reduce Summary" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSD Data ID" }),
+                            search.createColumn({
+                                name: "created",
+                                sort: search.Sort.DESC,
+                                label: "Date Created"
+                            })
+                        ]
+                });
+                var results = customrecord_ab_mr_record_statusSearchObj.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+                var RecordID = results[0].id;
+                var mapReduceRecObj = record.load({
+                    type: 'customrecord_ab_mr_record_status',
+                    id: parseInt(RecordID)
+                });
+                mapReduceRecObj.setValue({
+                    fieldId: 'custrecord_ab_error_file_id',
+                    value: csvFileCreated
+                });
+                mapReduceRecObj.save();
             }
         }
     };

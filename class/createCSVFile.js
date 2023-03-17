@@ -54,7 +54,7 @@ define(['N/record','N/log','N/file'], function (record,log,file,url) {
                     name: 'Error file' + currentTimestamp,
                     fileType: file.Type.CSV,
                     contents: csvFullData,
-                    folder: 14272,
+                    folder: 14525,
                     isOnline: true
                     });
                 
