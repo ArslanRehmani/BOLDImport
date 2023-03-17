@@ -2,8 +2,8 @@
  *@NApiVersion 2.0
 *@NScriptType Suitelet
 */
-define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js', '../common/ab_lib_common.js', '../common/ab_lib_stepper.js', '../common/ab_lib_SL_fun.js', '../common/ab_lib_mr_fun.js', 'N/runtime'],
- function (serverWidget, log, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS, commonLib, addStepperLib, SlFunLib,mrFunLib,runtime) {
+define(['N/ui/serverWidget', 'N/log','N/search', 'N/file', 'N/record', '../common/ab_lib_convertCSVToJson.js', 'N/currentRecord', 'N/ui/dialog', '../Library/Controller.js', 'N/task', '../class/ab_map_reduce_status_CLS.js', '../common/ab_lib_common.js', '../common/ab_lib_stepper.js', '../common/ab_lib_SL_fun.js', '../common/ab_lib_mr_fun.js', 'N/runtime'],
+ function (serverWidget, log,search, file, record, convertCSVLIB, currentRecord, dialog, ControllerLib, task, MRstatusCLS, commonLib, addStepperLib, SlFunLib,mrFunLib,runtime) {
 
     function onRequest(context) {
         var title = 'OnRequestSL::'
@@ -76,6 +76,12 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                         });
                         var taskStatus = mrSummary.status;
                         log.debug(title + 'Task Status', mrSummary.status);
+                        log.debug(title + 'mrSummary', mrSummary);
+                        log.debug(title + 'mapReduceId', mapReduceId);
+                        //New Code
+                        
+
+                        //End New Code
                         MRstatusCLS.Create(mapReduceId, taskStatus, csvFileId);
 
                         assistance.currentStep = assistance.getNextStep();
@@ -127,11 +133,12 @@ define(['N/ui/serverWidget', 'N/log', 'N/file', 'N/record', '../common/ab_lib_co
                     break;
 
                 case 'custpage_ab_savemap':
-                    var saveFld = assistance.addField({
-                        id: 'custpage_ab_save',
-                        type: serverWidget.FieldType.TEXT,
-                        label: 'Your Save Mapping Here'
-                    });
+                    addStepperLib.callMapReduceStep(assistance);
+                    // var saveFld = assistance.addField({
+                    //     id: 'custpage_ab_save',
+                    //     type: serverWidget.FieldType.TEXT,
+                    //     label: 'Your Save Mapping Here'
+                    // });
                     break;
             }
             response.writePage(assistance);

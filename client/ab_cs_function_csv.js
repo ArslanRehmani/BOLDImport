@@ -58,10 +58,9 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                         font-family: "Open Sans", sans-serif;\
                     }\
                     .table-wrapper {\
-                        width: 700px;\
-                        margin: 30px auto;\
+                        margin: 20px auto;\
                         background: #fff;\
-                        padding: 20px;box-shadow: 0 1px 1px rgba(0,0,0,.05);\
+                        box-shadow: 0 1px 1px rgba(0,0,0,.05);\
                     }\
                     .table-title {\
                         padding-bottom: 10px;\
@@ -139,25 +138,114 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                     #left-Float {\
                     float: left;\
                     }\
+                    span#custpage_hidden_data_field_val {\
+                        width: 100%;\
+                        float: left;\
+                    }\
+                    table.uir-fieldarrangement-fieldwraptable {\
+                        width: 100%;\
+                        /* float: left; */\
+                    }\
+                    .container-lg {\
+                        max-width: 100% !important;\
+                        float: left;\
+                    }\
+                    .container-lg {\
+                        max-width: 100% !important;\
+                        width: 100%;\
+                    }\
+                    .w-100{\
+                        width:100%;\
+                    }\
+                    .contect-height{\
+                        height: 40px;\
+                        overflow: hidden;\
+                        display: flex;\
+                        align-items: center;\
+                    }\
+                    .padding-right{\
+                        padding-right:5px;\
+                    }\
+                    .a-display{\
+                        width: 100%;\
+                        display: inline-block;\
+                    }\
+                    .padding-0{\
+                        padding: 0px !important;\
+                    }\
+                    .padding-75{\
+                        padding: .75rem;\
+                    }\
+                    .slideme.padding-75 {\
+                        border-bottom: 1px solid #e9e9e9;\
+                        border-collapse: collapse;\
+                    }\
+                    .border-none{\
+                        border:0px !important;\
+                    }\
+                    .align-center{\
+                        text-align: center;\
+                    }\
+                    #CSVtblMap .fields {\
+                        text-align: right;\
+                    }\
+                    .icon i {\
+                        font-size: 12px !important;\
+                    }\
+                    table#NetSuitetbl .right-icon {\
+                        display: none;\
+                    }\
+                    table#NetSuitetblMap .left-icon {\
+                        display: none;\
+                    }\
+                    .right-icon {\
+                        position: absolute;\
+                        right: 0;\
+                    }\
+                    .close-icon {\
+                        position: absolute;\
+                        left: 0;\
+                    }\
+                    .position-relative{\
+                        position: relative;\
+                    }\
+                    table#CSVtbl .close-icon {\
+                        display: none;\
+                    }\
+                    table#CSVtblMap .right-icon {\
+                        display: none;\
+                    }\
+                    .bg-color{\
+                        background: #607799;\
+                        color: #fff;\
+                    }\
+                    .font-italic{\
+                        font-style: italic;\
+                    }\
+                    @media screen and (max-width: 1704px) {\
+                        h2 {\
+                          font-size: 17px !important;\
+                        }\
+                      }\
                     </style>\
                     </head>\
                     <body>\
                     <form>\
                     <div class="container-lg">\
                         <div id="right-Float" style="width: 25%;">\
-                            <div class="table-wrapper" style="width: 80%;">\
+                            <div class="table-wrapper" style="width: 100%; padding-left:20px;">\
                                 <div class="table-title">\
-                                    <div class="row">\
-                                        <div class="col-sm-4"><h2>NetSuite Record</h2></div>\
+                                    <div class="w-100">\
+                                        <div><h2>NetSuite Record</h2></div>\
                                     </div>\
                                 </div>\
-                                <table class="table table-bordered " id= "NetSuitetbl" >\
+                                <table class="table table-bordered my_table" id= "NetSuitetbl" >\
                                     <thead>\
                                         <tr>\
-                                            <th>NetSuite Field Name</th>\
+                                            <th class="bg-color">NetSuite Field Name</th>\
                                         </tr>\
-                                        <tr id="hideRow">\
-                                        <th><a onclick="hideLineItems(event)" title="Hide/Show Item"><b>Double Click Hide/show Item Sublist</b></a></th>\
+                                        <tr hideRow>\
+                                        <th><a onclick="hideLineItems(event)" title="Hide/Show Item" data-toggle="collapse" data-target=".demo1" class="accordion-toggle"><b>Double Click Hide/show Item Sublist</b></a></th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuiteTblBody" >';
@@ -172,12 +260,32 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         continue;
                                     }
                                     html += '<tr class="hideTr">\
-                                            <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + "<span> <strong>lineItem : </strong> </span>" + datarec.name + '' + staric + '</td>\
+                                            <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" name = "mapFields">\
+                                                <div class="slideme padding-75" style="display: none; padding-left:40px;">\
+                                                    <a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display font-italic">\
+                                                        <div class="contect-height position-relative">\
+                                                            <span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>\
+                                                            ' + "<span> <strong>lineItem : </strong> </span>" + datarec.name + '<span style="color: red;">' + staric + '</span>\
+                                                            <span class="padding-right right-icon icon"><i class="fa fa-times"></i></span>\
+                                                        </div>\
+                                                    </a>\
+                                                </div>\
+                                            </td>\
                                             </tr>'
                                     NetSuiteArray.push(datarec.id);
                                 } else {
                                     html += '<tr class="hideTr">\
-                                            <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '</td>\
+                                                <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" name = "mapFields">\
+                                                <div class="slideme padding-75" style="display: none; padding-left:40px;">\
+                                                    <a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display font-italic">\
+                                                        <div class="contect-height position-relative">\
+                                                            <span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i>\
+                                                            </span>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '\
+                                                            <span class="padding-right right-icon icon"><i class="fa fa-times"></i></span>\
+                                                        </div>\
+                                                    </a>\
+                                                    </div>\
+                                                </td>\
                                             </tr>'
                                 }
                             }
@@ -190,12 +298,12 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                         var staric = '*(required)';
                         if (mandatoryData == true) {
                             html += '<tr>\
-                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + datarec.name + '' + staric + '</td>\
+                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span style="color: red;">' + staric + '</span><span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
                                         </tr>'
                             NetSuiteArray.push(datarec.id);
                         } else {
                             html += '<tr>\
-                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + datarec.name + '</td>\
+                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
                                         </tr>'
                         }
                     }
@@ -205,16 +313,16 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                             </div>\
                         </div>\
                         <div id="right-Float" style="width: 25%;">\
-                            <div class="table-wrapper" style="width: 80%;">\
+                            <div class="table-wrapper" style="width: 100%; padding-right:20px;">\
                                 <div class="table-title">\
-                                    <div class="row">\
-                                        <div class="col-sm-4"><h2>NetSuite Record Mapping</h2></div>\
+                                    <div class="w-100">\
+                                        <div class="align-center"><h2>NetSuite Record Mapping</h2></div>\
                                     </div>\
                                 </div>\
                                 <table class="table table-bordered" id= "NetSuitetblMap" >\
                                     <thead>\
                                         <tr>\
-                                            <th>NetSuite Field Map</th>\
+                                            <th class="bg-color">NetSuite Field Map</th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "NetSuitemapTblBody">\
@@ -223,40 +331,48 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                             </div>\
                         </div>\
                         <div id="left-Float" style="width: 25%;">\
-                            <div class="table-wrapper" style="width: 80%;">\
+                            <div class="table-wrapper" style="width: 100%; padding-right:20px;">\
                                 <div class="table-title">\
-                                    <div class="row">\
-                                        <div class="col-sm-4"><h2>CSV Record</h2></div>\
+                                    <div class="w-100">\
+                                        <div><h2>CSV Record</h2></div>\
                                     </div>\
                                 </div>\
                                 <table class="table table-bordered" id= "CSVtbl" >\
                                     <thead>\
                                         <tr>\
-                                            <th>CSV Field Name</th>\
+                                            <th class="bg-color">CSV Field Name</th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "CSVtblBody">';
                     for (var i = 0; i <= headerFields.length - 1; i++) {
                         var headerField = headerFields[i];
                         html += '<tr>\
-                                        <td class = "fields" data-id = "'+ headerField + '" name = "CSVFields"><a onclick="swapRow(event)" title="Delete"><i class="fa fa-arrows-h"></i></a>' + headerField + '</td>\
-                                        </tr>'
+                                    <td class = "fields" data-id = "'+ headerField + '" name = "CSVFields">\
+                                        <a onclick="swapRow(event)" title="'+headerField+'" class="a-display">\
+                                            <div class="contect-height position-relative">\
+                                            <span class="w-100">' + headerField + '</span>\
+                                            <span class="padding-right right-icon icon"><i class="fa fa-arrow-right"></i></span>\
+                                            <span class="padding-right close-icon icon"><i class="fa fa-times"></i></span>\
+                                            </div>\
+                                        </a>\
+                                    </td>\
+                                </tr>'
                     }
                     html += '</tbody>\
                                 </table>\
                             </div>\
                         </div>\
                         <div id="left-Float" style="width: 25%;">\
-                            <div class="table-wrapper" style="width: 80%;">\
+                            <div class="table-wrapper" style="width: 100%; padding-left:20px;">\
                                 <div class="table-title">\
-                                    <div class="row">\
-                                        <div class="col-sm-4"><h2>CSV Record Mapping</h2></div>\
+                                    <div class="w-100">\
+                                        <div class="align-center"><h2>CSV Record Mapping</h2></div>\
                                     </div>\
                                 </div>\
                                 <table class="table table-bordered" id= "CSVtblMap" >\
                                     <thead>\
                                         <tr>\
-                                            <th>CSV Field Map</th>\
+                                            <th class="bg-color">CSV Field Map</th>\
                                         </tr>\
                                     </thead>\
                                     <tbody id= "CSVmapTblBody">\
@@ -394,7 +510,6 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             log.debug(e.message);
         }
     }
-
     //Function for tables row that move (swap) from one table to another
     function swapRow(e) {
 
@@ -422,14 +537,50 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
             commonLib.sortTable(jQuery('#NetSuitetbl'), 'asc');
         }
         fieldChanged(rec);
-
     }
     function hideLineItems(e) {
-        jQuery('#hideRow').click(function () {
-            jQuery('.hideTr').toggle();//this one is working with double click
-        });
+        // jQuery('#hideRow').click(function () {
+        //     jQuery('.hideTr').toggle();//this one is working with double click
+        // });
+        console.log("TEST");
+        // jQuery('.accordian-body').on('show.bs.collapse', function () {
+        //     console.log("TEST2");
+        //     console.log("TEST2");
+        //     jQuery(this).closest("table")
+        //         .find(".collapse.in")
+        //         .not(this)
+        //         //.collapse('toggle')
+        // })
+        if (jQuery(e.target).closest("table").hasClass("my_table")) {
+            var $slideme = jQuery(e.target).closest("table").find(".slideme");
+            $slideme.slideToggle();
+            console.log("TEST1");
+            if ($slideme.css("display") === "none") {
+                console.log("TEST if");
+                jQuery($slideme.closest("td")).filter(".fields").css("border", "");
+            } else {
+                console.log("TEST else");
+                jQuery($slideme.closest("td")).filter(".fields").css("border", "0px");
+            }
+        }
+        //     // if ($('.slideme').is(':hidden') && $('.slideme').closest('table').hasClass('my_table')) {
+        //     //     $('.slideme').closest('tr').css('border', 'none');
+        //     //   }
+        //     if (jQuery(".slideme").css("display") === "none") {
+        //         console.log("Test Pasa")
+        //         jQuery('.slideme').closest('tr').css('border', 'none');
+        //       }
+              
+        // }
+        // if (jQuery(e.target).closest("table").hasClass("my_table")) {
+        //     var $slideme = jQuery(e.target).closest("table").find(".slideme");
+        //     if ($slideme.css('display') === 'none') {
+        //       $slideme.closest("tr").removeClass("remove-border");
+        //     }
+        //     $slideme.slideToggle();
+        //   }
+          
     }
-
     function serializeData() {
         var nsData = [];
         var NetSuiteMapArray = [];
