@@ -1,11 +1,11 @@
-define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLogfile) {
+define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, createCSVLogfile, search) {
     var logError = [];
     return {
-        Create: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
-            var title = 'customerdeposit()::';
+        Create: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
+            var title = 'Item Fulfillment()::';
             try {
                 log.debug({
-                    title: 'Record create Function Call in Custome Deposit',
+                    title: 'Record create Function Call in Item Fulfillment',
                     details: rectype
                 });
                 rectype = rectype.toString();
@@ -19,25 +19,54 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     var FieldSetObj = createRecordinArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
-                    // var val = csvValuesData[header];
                     var val = csvValuesDataGroupOBJ[header];
-                    log.audit({
-                        title: 'NSID' + 'val',
-                        details: NSid + val
-                    });
                     if (header == 'Date') {
+                        log.debug({
+                            title: 'NSid' + ' ' + 'NSval',
+                            details: NSid + ' ' + val
+                        });
                         var date = new Date(val);
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid,
                             value: date
                         });
                     } else {
+                        log.debug({
+                            title: 'NSid' + ' ' + 'NSval',
+                            details: NSid + ' ' + val
+                        });
                         NetsuiteRecordCreate.setValue({
-                            fieldId: NSid,//netsuite field id's
+                            fieldId: NSid, //netsuite field id's
                             value: val // Netsuite Field Value
                         });
                     }
-
+                }
+                //set item sub tab data
+                var jsonLinelevelArray = JSON.parse(LineLevelData);
+                for (var j = 0; j < csvValuesData.length; j++) {
+                    NetsuiteRecordCreate.selectNewLine({
+                        sublistId: 'item'
+                    });
+                    var csvValuesDataGroupOBJ = csvValuesData[j];
+                    for (var k = 0; k < jsonLinelevelArray.length; k++) {
+                        var LineSetObj = jsonLinelevelArray[k];
+                        var header = LineSetObj.csvField;
+                        var NSid = LineSetObj.NSField;
+                        var val = csvValuesDataGroupOBJ[header];
+                        log.debug({
+                            title: 'LineNSid' + ' ' + 'LineNSval',
+                            details: NSid + ' ' + val
+                        });
+                        NetsuiteRecordCreate.setCurrentSublistValue({
+                            sublistId: 'item',
+                            fieldId: NSid,
+                            value: val,
+                            ignoreFieldChange: true
+                        });
+                    }
+                    NetsuiteRecordCreate.commitLine({
+                        sublistId: 'item'
+                    });
                 }
                 var recordId = NetsuiteRecordCreate.save({
                     enableSourcing: true,
@@ -46,7 +75,7 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 log.debug({
                     title: 'Record create In NetSuite  ID',
                     details: recordId
-                })
+                });
 
             } catch (error) {
                 log.error(title + error.name, error.message);
@@ -115,12 +144,12 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 mapReduceRecObj.save();
             }
         },
-        Update: function (csvValuesData,createRecordinArray,rectype,LineLevelData) {
-            var title = 'customerdeposit() Update::';
+        Update: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
+            var title = 'Item Fulfillment() Update::';
             var loadrec;
             try {
                 log.debug({
-                    title: 'Record Update Function Call in Custome Deposit for Update',
+                    title: 'Record Update Function Call in Item Fulfillment Update',
                     details: rectype
                 });
                 rectype = rectype.toString();
@@ -132,18 +161,13 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     var NSid = FieldSetObj.NSField;
                     var val = csvValuesDataGroupOBJ[header];
                     if (NSid == 'id') {
-                        // loadrec = csvValuesData[header];
+                       log.debug({
+                            title: 'NSid ID' + ' ' + 'NSval ID',
+                            details: NSid + ' ' + val
+                        });
                         loadrec = csvValuesDataGroupOBJ[header];
                     }
                 }
-                log.debug({
-                    title: 'loadrec',
-                    details: loadrec
-                });
-                log.debug({
-                    title: 'loadrec type',
-                    details: typeof loadrec
-                });
                 var NetsuiteRecordCreate = record.load({
                     type: rectype,
                     id: parseInt(loadrec),
@@ -154,11 +178,11 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
                     var val = csvValuesDataGroupOBJ[header];
-                    log.debug({
-                        title: 'NSID' +' '+ 'val',
-                        details: NSid +' '+ val
-                    });
                     if (header == 'Date') {
+                        log.debug({
+                            title: 'NSid ID' + ' ' + 'NSval ID',
+                            details: NSid + ' ' + val
+                        });
                         var date = new Date(val);
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid,
@@ -166,12 +190,42 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                         });
                     } else {
                         NetsuiteRecordCreate.setValue({
-                            fieldId: NSid,//netsuite field id's
+                            fieldId: NSid, //netsuite field id's
                             value: val // Netsuite Field Value
                         });
                     }
-
                 }
+                //set item sub tab data
+                // log.debug({
+                //     title: 'LineLevelData -----',
+                //     details: JSON.parse(LineLevelData)
+                // });
+                // var jsonLinelevelArray = JSON.parse(LineLevelData);
+                // for (var j = 0; j < jsonLinelevelArray.length; j++) { //This loop is for num of lines need to enter in Sales order **Need to be Dynamic**
+                //     NetsuiteRecordCreate.selectLine({
+                //         sublistId: 'item',
+                //         line: j
+                //     });
+                //     for (var k = 0; k < jsonLinelevelArray.length; k++) {
+                //         var LineSetObj = jsonLinelevelArray[k];
+                //         var header = LineSetObj.csvField;
+                //         var NSid = LineSetObj.NSField;
+                //         var val = csvValuesDataGroupOBJ[header];
+                //         log.debug({
+                //             title: 'LineNSid' + ' ' + 'LineNSval',
+                //             details: NSid + ' ' + val
+                //         });
+                //         NetsuiteRecordCreate.setSublistValue({
+                //             sublistId: 'item',
+                //             fieldId: NSid,
+                //             value: parseInt(val),
+                //             line: k
+                //         });
+                //     }
+                //     NetsuiteRecordCreate.commitLine({
+                //         sublistId: 'item'
+                //     });
+                // }
                 var recordId = NetsuiteRecordCreate.save({
                     enableSourcing: true,
                     ignoreMandatoryFields: true
@@ -248,6 +302,6 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 mapReduceRecObj.save();
             }
         }
-
     };
+
 });

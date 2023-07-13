@@ -82,7 +82,13 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     items = rec.getSublistFields({
                         sublistId: 'inventory'
                     });
-                } else {
+                } 
+                else if (recID == 'subscription'){
+                    items = rec.getSublistFields({
+                        sublistId: 'subscriptionline'
+                    });
+                }
+                else {
                     items = rec.getSublistFields({
                         sublistId: 'item'
                     });
@@ -106,8 +112,16 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                 if (items.length) {
                     for (var i = 0; i < items.length; i++) {
                         if (recID == 'bintransfer') {
+                            console.log('Working', '1');
                             fieldfilterObj = rec.getSublistField({
                                 sublistId: 'inventory',
+                                fieldId: items[i],
+                                line: 0
+                            });
+                        } else if(recID == 'subscription') {
+                            console.log('Working', '2');
+                            fieldfilterObj = rec.getSublistField({
+                                sublistId: 'subscriptionline',
                                 fieldId: items[i],
                                 line: 0
                             });
@@ -116,10 +130,12 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                                 sublistId: 'item',
                                 fieldId: items[i],
                                 line: 0
-                            })
+                            });
+                            console.log('fieldfilterObj======', fieldfilterObj);
                         }
-                        // console.log('fieldfilterObj', fieldfilterObj);
+                        console.log('fieldfilterObj ELSE IF', fieldfilterObj);
                         if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly) {
+                            console.log('working YES NO', 'YES');
                             obj = {}
                             obj.id = fieldfilterObj.id;
                             obj.name = fieldfilterObj.label;
@@ -131,6 +147,7 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                             filteredFields.push(obj)
                         }
                     }
+                    console.log('filteredFields------0000', filteredFields);
                     items = filteredFields;
                     sublistFields.item = items;
                 }
