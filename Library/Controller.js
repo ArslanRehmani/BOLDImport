@@ -1,5 +1,5 @@
-define(['../class/NS_Cust_Payroll_CLS.js','../class/NS_Cust_Logging_CLS.js','../class/NS_customerdeposit_CLS.js','../class/NS_salesOrder_CLS.js','../class/NS_workOrder_CLS .js','../class/ab_CLS_custPayment.js','../class/NS_binTransfer_CLS.js'],
- function (custPayrollCLS,custLoggingCLS,customerdepositeCLS,salesOrderCLS,workOrderCLS,custPayCLS,binTransferCLS) {
+define(['../class/NS_Cust_Payroll_CLS.js','../class/NS_customerdeposit_CLS.js','../class/NS_itemFulfillment_CLS.js','../class/NS_workOrder_CLS .js','../class/ab_CLS_custPayment.js','../class/NS_binTransfer_CLS.js','../class/ab_CLS_subscription.js','../class/NS_InterCompanyTransferOrder_CLS.js'],
+ function (custPayrollCLS,customerdepositeCLS,itemFulfillmentCLS,workOrderCLS,custPayCLS,binTransferCLS,subscriptionCLS,interCompanyTransferCLS) {
     return {
         
         recTypeSwitch : function (csvValuesData,createRecordinArray,rectype,selectOption,LineLevelData) {
@@ -14,20 +14,13 @@ define(['../class/NS_Cust_Payroll_CLS.js','../class/NS_Cust_Logging_CLS.js','../
                             custPayrollCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
                         }
                       break;
-                    case 'salesorder': 
+                    case 'itemfulfillment': 
                         if(selectOption == 1){
-                            salesOrderCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                            itemFulfillmentCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
                         }else{
-                            salesOrderCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                            itemFulfillmentCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
                         }
                       break;
-                    case 'customrecord_ab_custom_logging':
-                        if(selectOption == 1){
-                            custLoggingCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
-                        }else{
-                            custLoggingCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
-                        }
-                    break;
                     case 'customerdeposit':
                         if(selectOption == 1){
                             customerdepositeCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
@@ -54,6 +47,20 @@ define(['../class/NS_Cust_Payroll_CLS.js','../class/NS_Cust_Logging_CLS.js','../
                             binTransferCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
                         }else{
                             binTransferCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                        }
+                      break;
+                    case 'subscription':
+                        if(selectOption == 1){
+                            subscriptionCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                        }else{
+                            subscriptionCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                        }
+                      break;
+                    case 'intercompanytransferorder':
+                        if(selectOption == 1){
+                            interCompanyTransferCLS.Update(csvValuesData,createRecordinArray,rectype,LineLevelData);
+                        }else{
+                            interCompanyTransferCLS.Create(csvValuesData,createRecordinArray,rectype,LineLevelData);
                         }
                       break;
                     default:

@@ -38,10 +38,10 @@ define(['N/ui/serverWidget', 'N/log','N/search', 'N/file', 'N/record', '../commo
                 id: 'custpage_ab_fieldmap',
                 label: 'CSV Import Message'
             });
-            var saveMapSTP = assistance.addStep({
-                id: 'custpage_ab_savemap',
-                label: 'Save mapping & Start Import'
-            });
+            // var saveMapSTP = assistance.addStep({
+            //     id: 'custpage_ab_savemap',
+            //     label: 'Save mapping & Start Import'
+            // });
             //Select option get here through function from 3rd step and pass parameter to Map reduce
             var selectOption = commonLib.getSelectOption(assistance);
             var internalidObj = commonLib.internalidOBJ(assistance);
@@ -103,7 +103,8 @@ define(['N/ui/serverWidget', 'N/log','N/search', 'N/file', 'N/record', '../commo
                 //at the end form is submite here so perform all thinks here
                 // add csv import functionalty here
 
-                assistance.finishedHtml = 'You have Completed the BOLDImport Process';
+                // assistance.finishedHtml = 'You have Completed the BOLDImport Process';
+                assistance.currentStep = assistance.getStep({ id: 'custpage_ab_scan_step' });
             }
 
             var currentStepId = assistance.currentStep == null ? 'custpage_ab_scan_step' : assistance.currentStep.id;
@@ -132,14 +133,14 @@ define(['N/ui/serverWidget', 'N/log','N/search', 'N/file', 'N/record', '../commo
                     });
                     break;
 
-                case 'custpage_ab_savemap':
-                    addStepperLib.callMapReduceStep(assistance);
-                    // var saveFld = assistance.addField({
-                    //     id: 'custpage_ab_save',
-                    //     type: serverWidget.FieldType.TEXT,
-                    //     label: 'Your Save Mapping Here'
-                    // });
-                    break;
+                // case 'custpage_ab_savemap':
+                //     addStepperLib.callMapReduceStep(assistance);
+                //     // var saveFld = assistance.addField({
+                //     //     id: 'custpage_ab_save',
+                //     //     type: serverWidget.FieldType.TEXT,
+                //     //     label: 'Your Save Mapping Here'
+                //     // });
+                //     break;
             }
             response.writePage(assistance);
         } catch (error) {

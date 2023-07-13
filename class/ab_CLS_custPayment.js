@@ -23,7 +23,7 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                     if (NSid == 'customer') {
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid,
-                            value: date,
+                            value: val,
                             forceSyncSourcing: true
                         });
                     }
@@ -73,26 +73,27 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
             try {
                 rectype = rectype.toString();
                 createRecordinArray = JSON.parse(createRecordinArray);
+                var csvValuesDataGroupOBJ = csvValuesData[0];
                 for (var i = 0; i < createRecordinArray.length; i++) {
                     var FieldSetObj = createRecordinArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
-                    var val = csvValuesData[header];
+                    var val = csvValuesDataGroupOBJ[header];
                     if (NSid == 'id') {
-                        loadrec = csvValuesData[header];
+                        loadrec = csvValuesDataGroupOBJ[header];
                     }
                 }
-                var NetsuiteRecordCreate = record.create({
+                var NetsuiteRecordCreate = record.load({
                     type: rectype,
-                    id: loadrec,
+                    id: parseInt(loadrec),
                     isDynamic: true
                 });
                 for (var i = 0; i < createRecordinArray.length; i++) {
                     var FieldSetObj = createRecordinArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
-                    var val = csvValuesData[header];
-                    if (header == 'date') {
+                    var val = csvValuesDataGroupOBJ[header];
+                    if (header == 'Date') {
                         var date = new Date(val);
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid,
@@ -126,19 +127,19 @@ define(['N/record', '../class/createCSVFile.js'], function (record, createCSVLog
                 title: 'logErrorUPDATE',
                 details: logError
             });
-            if (logErrorArray && logErrorArray.length > 0) {
+            if (logError && logError.length > 0) {
                 log.debug({
                     title: 'LOG_ARRAY',
-                    details: JSON.stringify(logErrorArray)
+                    details: JSON.stringify(logError)
                 });
-                var properties = Object.keys(logErrorArray[0]);
+                var properties = Object.keys(logError[0]);
                 log.debug({
                     title: 'properties',
                     details: JSON.stringify(properties)
                 });
                 // call class that create error file
-                var csvFileCreated = createCSVLogfile.createCSVFile(logErrorArray, properties);
-                createCSVLogfile.createCSVFile(logErrorArray, properties);
+                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties);
+                createCSVLogfile.createCSVFile(logError, properties);
                 log.debug({
                     title: 'created and saved the log file: ',
                     details: csvFileCreated

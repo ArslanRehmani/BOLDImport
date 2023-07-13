@@ -164,13 +164,6 @@ define(['N/log','N/record', 'N/ui/serverWidget', 'N/url', 'N/task', 'N/search'],
                     displayType: serverWidget.FieldDisplayType.NORMAL
                 });
                 var htmlBtnData = '<style>\
-                input#errorBtn {\
-                    padding: 5px 10px;\
-                    background: #999999;\
-                    color: #fff;\
-                    font-weight: 600;\
-                    border-radius: 3px;\
-                }\
                 input#refreshBtn {\
                     padding: 5px 10px;\
                     background: #2080f4;\
@@ -178,8 +171,17 @@ define(['N/log','N/record', 'N/ui/serverWidget', 'N/url', 'N/task', 'N/search'],
                     font-weight: 600;\
                     border-radius: 3px;\
                 }\
+                button#refreshButton {\
+                    padding: 5px 10px;\
+                    background: #2080f4;\
+                    color: #fff;\
+                    font-weight: 600;\
+                    border-radius: 3px;\
+                    border: none;\
+                    float: left;\
+                }\
                 </style>';
-                htmlBtnData += '<input type="button" onClick="RefreshMapReduceRec();"  id= "refreshBtn" value="View" style="cursor:pointer" /> <input type="button" id="errorBtn" onclick="ViewError(event)" title="ViewErrorViewError" value="View Errors" style="cursor:pointer" />';
+                htmlBtnData += '<input type="button" onClick="RefreshMapReduceRec();"  id= "refreshBtn" value="View CSV Import" style="cursor:pointer" />';
                 htmlBtnData += '<SCRIPT language="JavaScript" type="text/javascript">';
                 htmlBtnData += "function bindEvent(element, type, handler) {if(element.addEventListener) {element.addEventListener(type, handler, false);} else {element.attachEvent('on'+type, handler);}} ";
                 htmlBtnData += 'bindEvent(window, "load", function(){';
@@ -187,16 +189,16 @@ define(['N/log','N/record', 'N/ui/serverWidget', 'N/url', 'N/task', 'N/search'],
                 htmlBtnData += '});';
                 htmlBtnData += '</SCRIPT>';
                 refreshBtn.defaultValue = htmlBtnData;
-                var filedsFld = assistance.addField({
-                    id: 'custpage_ab_file',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: 'Records Successfully Created'
-                });
-                filedsFld.updateDisplayType({
-                    displayType: serverWidget.FieldDisplayType.NORMAL
-                });
-                // filedsFld.defaultValue = '<h1 style="color: green;">' + msg + '</h1>';
-                filedsFld.defaultValue = '<h1 style="color: green;">Click VIEW to See Import Record Status/Logs</h1>';
+                // var filedsFld = assistance.addField({
+                //     id: 'custpage_ab_file',
+                //     type: serverWidget.FieldType.INLINEHTML,
+                //     label: 'Records Successfully Created'
+                // });
+                // filedsFld.updateDisplayType({
+                //     displayType: serverWidget.FieldDisplayType.NORMAL
+                // });
+                // // filedsFld.defaultValue = '<h1 style="color: green;">' + msg + '</h1>';
+                // filedsFld.defaultValue = '<h1 style="color: green;">Click VIEW to See Import Record Status/Logs</h1>';
                 //my Code for refresh btn
                 /*var htmlBtnData = '<br /> <br /><input type="button" onClick="RefreshMapReduceRec();"  id= "refreshrec" value="Refresh Button" style="cursor:pointer" />';
                             htmlBtnData += '<SCRIPT language="JavaScript" type="text/javascript">';
@@ -221,24 +223,13 @@ define(['N/log','N/record', 'N/ui/serverWidget', 'N/url', 'N/task', 'N/search'],
                 //             htmlData += '});';
                 //             htmlData += '</SCRIPT>';
                 //             mapReduceScriptBtn.defaultValue = htmlData;
-                var HtmlData = '<button onclick="myFunction()">Refresh This Page to see Import Status</button>';
+                var HtmlData = '<button id="refreshButton" onclick="myFunction()">Refresh This Page to see Import Status</button>';
                 HtmlData += '<script>\
                 function myFunction() {\
                     location.reload();\
                 }\
                 </script>';
                 mapReduceScriptBtn.defaultValue = HtmlData;
-                // var mapReduce = task.create({
-                //     taskType: task.TaskType.MAP_REDUCE,
-                //     scriptId: 'customscript_ab_mr_update_maprec_status',
-                //     deploymentId: 'customdeploy_ab_mr_update_maprec_status'
-                // });
-                // var mapReduceId = mapReduce.submit();
-                // log.debug({
-                //     title: 'mapReduceId',
-                //     details: mapReduceId
-                // });
-
 
                 //new Code 
                 var mapReduceImportStatus = assistance.addField({
@@ -328,47 +319,47 @@ define(['N/log','N/record', 'N/ui/serverWidget', 'N/url', 'N/task', 'N/search'],
                 log.error(title + error.name, error.message)
             }
         },
-        callMapReduceStep: function (assistance) {
-            var title = 'callMapReduceStep()::';
-            try {
-                var refreshBtn = assistance.addField({
-                    id: 'custpage_ab_refreshbtn123',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: 'Refresh Button123'
-                });
-                refreshBtn.updateDisplayType({
-                    displayType: serverWidget.FieldDisplayType.NORMAL
-                });
-                var htmlBtnData = '<style>\
-                input#refreshBtn {\
-                    padding: 5px 10px;\
-                    background: #2080f4;\
-                    color: #fff;\
-                    font-weight: 600;\
-                    border-radius: 3px;\
-                }\
-                </style>';
-                htmlBtnData += '<input type="button" onClick="RefreshMapReduceRec();"  id= "refreshBtn" value="View Import Status" style="cursor:pointer" />';
-                htmlBtnData += '<SCRIPT language="JavaScript" type="text/javascript">';
-                htmlBtnData += "function bindEvent(element, type, handler) {if(element.addEventListener) {element.addEventListener(type, handler, false);} else {element.attachEvent('on'+type, handler);}} ";
-                htmlBtnData += 'bindEvent(window, "load", function(){';
-                htmlBtnData += 'window.RefreshMapReduceRec = function (event){window.open("/app/common/custom/custrecordentrylist.nl?rectype=1507&amp;searchtype=Custom&searchid=3092&amp;style=NORMAL&amp;sortcol=Custom_CREATED_raw&amp;sortdir=DESC&amp;csv=HTML&amp;OfficeXML=F&amp;pdf=&amp;size=50&amp;_csrf=RNXxNUhg0W18IDbMDv4PomgNC4a8EWVwYrEDVdbw-wyF9LOrvqlKzaYoPWQ-gkFC6c72hheWoOgeX3RPMogkb6MQMhCEEm0ejN4U1HUk1k_WJK_xH8PDOCiis1UOiQb2DwVfJWrgBm0F9GO-oxl7b8wzNAKzUGfkFnG4qN4Obf4%3D&amp;twbx=F&amp;report=&amp;grid=&amp;dle=&amp;showall=F&amp;quicksort=Custom_CREATED_raw%20DESC")}';
-                htmlBtnData += '});';
-                htmlBtnData += '</SCRIPT>';
-                refreshBtn.defaultValue = htmlBtnData;
-                var mapReduce = task.create({
-                    taskType: task.TaskType.MAP_REDUCE,
-                    scriptId: 'customscript_ab_mr_update_maprec_status',
-                    deploymentId: 'customdeploy_ab_mr_update_maprec_status'
-                });
-                var mapReduceId = mapReduce.submit();
-                log.debug({
-                    title: 'mapReduceId',
-                    details: mapReduceId
-                });
-            } catch (error) {
-                log.error(title + error.name, error.message)
-            }
-        },
+        // callMapReduceStep: function (assistance) {
+        //     var title = 'callMapReduceStep()::';
+        //     try {
+        //         var refreshBtn = assistance.addField({
+        //             id: 'custpage_ab_refreshbtn123',
+        //             type: serverWidget.FieldType.INLINEHTML,
+        //             label: 'Refresh Button123'
+        //         });
+        //         refreshBtn.updateDisplayType({
+        //             displayType: serverWidget.FieldDisplayType.NORMAL
+        //         });
+        //         var htmlBtnData = '<style>\
+        //         input#refreshBtn {\
+        //             padding: 5px 10px;\
+        //             background: #2080f4;\
+        //             color: #fff;\
+        //             font-weight: 600;\
+        //             border-radius: 3px;\
+        //         }\
+        //         </style>';
+        //         htmlBtnData += '<input type="button" onClick="RefreshMapReduceRec();"  id= "refreshBtn" value="View Import Status" style="cursor:pointer" />';
+        //         htmlBtnData += '<SCRIPT language="JavaScript" type="text/javascript">';
+        //         htmlBtnData += "function bindEvent(element, type, handler) {if(element.addEventListener) {element.addEventListener(type, handler, false);} else {element.attachEvent('on'+type, handler);}} ";
+        //         htmlBtnData += 'bindEvent(window, "load", function(){';
+        //         htmlBtnData += 'window.RefreshMapReduceRec = function (event){window.open("/app/common/custom/custrecordentrylist.nl?rectype=1507&amp;searchtype=Custom&searchid=3092&amp;style=NORMAL&amp;sortcol=Custom_CREATED_raw&amp;sortdir=DESC&amp;csv=HTML&amp;OfficeXML=F&amp;pdf=&amp;size=50&amp;_csrf=RNXxNUhg0W18IDbMDv4PomgNC4a8EWVwYrEDVdbw-wyF9LOrvqlKzaYoPWQ-gkFC6c72hheWoOgeX3RPMogkb6MQMhCEEm0ejN4U1HUk1k_WJK_xH8PDOCiis1UOiQb2DwVfJWrgBm0F9GO-oxl7b8wzNAKzUGfkFnG4qN4Obf4%3D&amp;twbx=F&amp;report=&amp;grid=&amp;dle=&amp;showall=F&amp;quicksort=Custom_CREATED_raw%20DESC")}';
+        //         htmlBtnData += '});';
+        //         htmlBtnData += '</SCRIPT>';
+        //         refreshBtn.defaultValue = htmlBtnData;
+        //         var mapReduce = task.create({
+        //             taskType: task.TaskType.MAP_REDUCE,
+        //             scriptId: 'customscript_ab_mr_update_maprec_status',
+        //             deploymentId: 'customdeploy_ab_mr_update_maprec_status'
+        //         });
+        //         var mapReduceId = mapReduce.submit();
+        //         log.debug({
+        //             title: 'mapReduceId',
+        //             details: mapReduceId
+        //         });
+        //     } catch (error) {
+        //         log.error(title + error.name, error.message)
+        //     }
+        // },
     }
 });

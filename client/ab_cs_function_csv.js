@@ -260,7 +260,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                         continue;
                                     }
                                     html += '<tr class="hideTr">\
-                                            <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" name = "mapFields">\
+                                            <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" linename = "'+ datarec.name + '" name = "'+'Line '+ datarec.name + '">\
                                                 <div class="slideme padding-75" style="display: none; padding-left:40px;">\
                                                     <a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display font-italic">\
                                                         <div class="contect-height position-relative">\
@@ -275,7 +275,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                                     NetSuiteArray.push(datarec.id);
                                 } else {
                                     html += '<tr class="hideTr">\
-                                                <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" name = "mapFields">\
+                                                <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" linename = "'+ datarec.name + '"  name = "'+'Line '+ datarec.name + '">\
                                                 <div class="slideme padding-75" style="display: none; padding-left:40px;">\
                                                     <a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display font-italic">\
                                                         <div class="contect-height position-relative">\
@@ -298,12 +298,12 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                         var staric = '*(required)';
                         if (mandatoryData == true) {
                             html += '<tr>\
-                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span style="color: red;">' + staric + '</span><span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
+                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "'+ datarec.name + '"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span style="color: red;">' + staric + '</span><span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
                                         </tr>'
                             NetSuiteArray.push(datarec.id);
                         } else {
                             html += '<tr>\
-                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "mapFields"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
+                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "'+ datarec.name + '"><a onclick="swapRow(event)" title="'+datarec.name+'" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
                                         </tr>'
                         }
                     }
@@ -431,6 +431,8 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         try {
             var rec = currentRecord.get();
             var netsuitedata = jQuery('#NetSuitetblMap .fields').length;
+            var netsuitedataItemLevel = jQuery('#NetSuitetblMap .fields');
+            console.log('netsuitedata MAP ITEM Level', netsuitedataItemLevel);
             var csvmapdata = jQuery('#CSVtblMap .fields').length;
             if (netsuitedata == csvmapdata) {
                 rec.setValue({
@@ -584,10 +586,22 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
     function serializeData() {
         var nsData = [];
         var NetSuiteMapArray = [];
+        var itemLevelArray = [];
         var CsvMapArray = [];
+        var obj;
         jQuery('#NetSuitetblMap .fields').each(function (index, td) {
-            nsData.push(jQuery(td).attr('data-id'))
-            console.log("td ->", jQuery(td).attr('data-id'))
+            nsData.push(jQuery(td).attr('data-id'));
+            console.log("td ->", jQuery(td).attr('data-id'));
+            console.log("MY line Item td ->", jQuery(td).attr('name'));
+            var itemObj = jQuery(td).attr('name');
+            var lineIem = itemObj.substring(0, 4);
+                console.log('lineIem**()()', lineIem);
+                if(lineIem == 'Line'){
+                    obj = {};
+                    obj.csvField = jQuery(td).attr('linename');
+                    obj.NSField = jQuery(td).attr('data-id');
+                    itemLevelArray.push(obj);
+                }
             NetSuiteMapArray.push(jQuery(td).attr('data-id'));
         })
         var nsMapLength = nsData.length;
@@ -602,6 +616,7 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         console.log("CSV Map length", csvMapLength);
         localStorage.setItem('NetSiteMapRequireLengthData', NetSuiteMapArray);
         localStorage.setItem('CSVMapRequireLengthData', CsvMapArray);
+        localStorage.setItem('itemLevelArray', JSON.stringify(itemLevelArray));
         MiddleTableRows();
     }
     function MiddleTableRows() {
@@ -610,6 +625,12 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
         var netsuitemaptableRows = localStorage.getItem('NetSiteMapRequireLengthData');
         var netsuitemaptableRowsArray = netsuitemaptableRows.split(",");
         console.log('netsuitemaptableRowsArray.length', netsuitemaptableRowsArray.length);
+
+
+        var netsuiteLines = JSON.parse(localStorage.getItem('itemLevelArray'));
+        // var netsuiteLinesArray = netsuiteLines.split(",");
+        console.log('netsuiteLines.length', netsuiteLines.length);
+        console.log('netsuiteLines', netsuiteLines);
 
         var csvmaptableRows = localStorage.getItem('CSVMapRequireLengthData');
         var csvmaptableRowsArray = csvmaptableRows.split(",");
@@ -627,32 +648,37 @@ define(['N/record', 'N/search', 'N/currentRecord', '../class/ab_CLS_boldImportRe
                 // csvHeaderObj use for csv header key 
                 csvHeaderObj[netsuitemaptableRowsArray[i]] = csvmaptableRowsArray[i];
                 csvheaderArray.push(csvHeaderObj);
-                var csvHeader = csvmaptableRowsArray[i];
-                var lineIem = csvHeader.substring(0, 4);
-                console.log('lineIem**()()', lineIem);
-                if (lineIem == 'Line') {
-                    LineObj = {}
-                    LineObj.csvField = csvmaptableRowsArray[i];
-                    LineObj.NSField = netsuitemaptableRowsArray[i];
-                    LineLevelArray.push(LineObj);
+                // var csvHeader = csvmaptableRowsArray[i];
+                // var lineIem = csvHeader.substring(0, 4);
+                // console.log('lineIem**()()', lineIem);
+                // if (lineIem == 'Line') {
+                //     LineObj = {}
+                //     LineObj.csvField = csvmaptableRowsArray[i];
+                //     LineObj.NSField = netsuitemaptableRowsArray[i];
+                //     LineLevelArray.push(LineObj);
 
-                } else {
+                // } else {
                     obj.csvField = csvmaptableRowsArray[i];//change here for header fields
                     obj.NSField = netsuitemaptableRowsArray[i];
                     MapObjArray.push(obj);
-                }
+                // }
             }
+            // var NSRecordFieldMapOBJ = {
+            //     'bodyFields': MapObjArray,
+            //     'LineFields': LineLevelArray
+            // };
+            // console.log('NSRecordFieldMapOBJ ****#####', NSRecordFieldMapOBJ);
             console.log('MapObjArray in mid Table', MapObjArray);
-            console.log('LineLevelArray in mid Table***()()', LineLevelArray);
+            // console.log('LineLevelArray in mid Table***()()', LineLevelArray);
             var mapobjarrayjson = JSON.stringify(MapObjArray)
-            var linelevelarrayjson = JSON.stringify(LineLevelArray)
+            // var linelevelarrayjson = JSON.stringify(LineLevelArray)
             rec.setValue({
                 fieldId: 'custpage_ab_middletablerows',
                 value: mapobjarrayjson
             });
             rec.setValue({
                 fieldId: 'custpage_ab_line_level_data',
-                value: linelevelarrayjson
+                value: JSON.stringify(netsuiteLines)
             });
             //Check for update wheter internal Id is selected or not
             var internalIdObj = MapObjArray.filter(function (obj) {
