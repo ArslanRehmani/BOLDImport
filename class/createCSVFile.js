@@ -1,9 +1,9 @@
-define(['N/record','N/log','N/file'], function (record,log,file,url) {
+define(['N/record', 'N/log', 'N/file'], function (record, log, file, url) {
     return {
-        createCSVFile : function (errorArray, properties) {
+        createCSVFile: function (errorArray, properties) {
             var title = 'createCSVFile()::';
             try {
-                
+
                 if (!properties || properties.length == 0) {
                     log.debug({
                         title: 'the CSV log cannot be generated, -properties- attribute is missing',
@@ -11,10 +11,10 @@ define(['N/record','N/log','N/file'], function (record,log,file,url) {
                     });
                     return;
                 }
-        
+
                 //loop through the property array, build a header
                 var csvHeader = '';
-        
+
                 for (var i = 0; i < properties.length; i++) {
                     csvHeader += properties[i] + ',';
                 }
@@ -24,7 +24,7 @@ define(['N/record','N/log','N/file'], function (record,log,file,url) {
                     details: csvHeader
                 });
                 var csvDetails = '';
-        
+
                 for (var j = 0; j < errorArray.length; j++) {
                     var csvLine = '';
                     var counter = 0;
@@ -37,18 +37,18 @@ define(['N/record','N/log','N/file'], function (record,log,file,url) {
                         });
                     }
                     csvLine += '\n';
-                    
+
                     csvDetails += csvLine;
                     log.debug({
                         title: "csvDetails===",
                         details: csvDetails
                     });
                 }
-        
+
                 var csvFullData = csvHeader + csvDetails;
                 var fileNamePrefix = 'csv_log_';
                 var currentTimestamp = new Date().getTime();
-        
+
                 //Create file in File Cabniet to store CSV file data
                 var csvFile = file.create({
                     name: 'Error file' + currentTimestamp,
@@ -56,26 +56,26 @@ define(['N/record','N/log','N/file'], function (record,log,file,url) {
                     contents: csvFullData,
                     folder: 14525,
                     isOnline: true
-                    });
-                
-                    // Save the file
-                    var id = csvFile.save();
-                    log.debug({
-                        title: 'Error file folder ID',
-                        details: id
-                    });
-                    
+                });
+
+                // Save the file
+                var id = csvFile.save();
+                log.debug({
+                    title: 'Error file folder ID',
+                    details: id
+                });
+
                 // csvFile.setFolder(ERROR_LOG_FOLDER);
                 // //internal id of the folder in the file cabinet
                 // var id = nlapiSubmitFile(csvFile);
                 return id;
-            
-                
-        } catch (error) {
-            log.error({
-                title: title +'The script failed to submit a csv file.',
-                details: 'The script failed to submit a csv file.' + error.toString()
-            })
+
+
+            } catch (error) {
+                log.error({
+                    title: title + 'The script failed to submit a csv file.',
+                    details: 'The script failed to submit a csv file.' + error.toString()
+                })
             }
 
         }

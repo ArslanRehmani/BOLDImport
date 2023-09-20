@@ -5,72 +5,75 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
     }
     return {
         getJsonCSV: function getJsonCSV(file) {
-            // loaderDiv.style.display = "block";
-            var skuArray = [];
-            var columns = [];
-            var self = this;
-            var fileUpload = document.getElementById("file");
-            if (!file) {
-                file = fileUpload.files[0];
-            } else {
-                file = file[0];
-            }
-            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
-            if (regex.test(file.name.toLowerCase())) {
-                if (typeof (FileReader) != "undefined") {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        var data = e.target.result;
-                        console.log('dataCSSV', data);
-                        var lines = data.split("\n")
-                        var csvValue = self.csvJSON(data);
-                        console.log('csvValue', csvValue);
-                        console.log('e.target.result', lines);
-                    };
-                    reader.readAsText(file);
+            var title = 'getJsonCSV(::)';
+            try {
+                var self = this;
+                var fileUpload = document.getElementById("file");
+                if (!file) {
+                    file = fileUpload.files[0];
                 } else {
-                    alert("This browser does not support HTML5.");
+                    file = file[0];
                 }
-            } else {
-                alert("Please upload a valid CSV file.");
+                localStorage.setItem("UploadFileName", file.name);
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
+                if (regex.test(file.name.toLowerCase())) {
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var data = e.target.result;
+                            // console.log('dataCSSV', data);
+                            localStorage.setItem("UploadFileCSVdata", data);
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        alert("This browser does not support HTML5.");
+                    }
+                } else {
+                    alert("Please upload a valid CSV file.");
+                }
+                return false;
+            } catch (e) {
+                log.debug('Exception ' + title, e.message);
             }
-            return false;
         },
         csvJSON: function csvJSON(csv) {
-            var lines = csv.split("\r");
-            var result = [];
-            // NOTE: If your columns contain commas in their values, you'll need
-            // to deal with those before doing the next step
-            // (you might convert them to &&& or something, then covert them back later)
-            // jsfiddle showing the issue https://jsfiddle.net/
-            var headers = lines[0].split(",");
-            for (var i = 1; i < lines.length; i++) {
-                var obj = {};
-                var currentline = lines[i].replace('\n', '').split(",");
-                for (var j = 0; j < headers.length; j++) {
-                    if (headers[j] && currentline[j]) {
-                        obj[headers[j]] = currentline[j];
+            var title = 'csvJSON(::)';
+            try {
+                var lines = csv.split("\r");
+                var result = [];
+                // NOTE: If your columns contain commas in their values, you'll need
+                // to deal with those before doing the next step
+                // (you might convert them to &&& or something, then covert them back later)
+                // jsfiddle showing the issue https://jsfiddle.net/
+                var headers = lines[0].split(",");
+                for (var i = 1; i < lines.length; i++) {
+                    var obj = {};
+                    var currentline = lines[i].replace('\n', '').split(",");
+                    for (var j = 0; j < headers.length; j++) {
+                        if (headers[j] && currentline[j]) {
+                            obj[headers[j]] = currentline[j];
+                        }
+                    }
+                    if (Object.keys(obj).length) {
+                        result.push(obj);
                     }
                 }
-                if (Object.keys(obj).length) {
-                    result.push(obj);
+                if (result.length) {
+                    localStorage.setItem("csvData", JSON.stringify(result));
+                    console.log('***result***', result);
+                } else {
+                    alert('Selected CSV File is empty');
+                    jQuery('#file').val('');
+                    throw new Error('Selected CSV File is empty');
                 }
+                //return result; //JavaScript object
+                return JSON.stringify(result); //JSON
+            } catch (e) {
+                log.debug('Exception ' + title, e.message);
             }
-            if (result.length) {
-                localStorage.setItem("csvData", JSON.stringify(result));
-                console.log('***result***', result);
-            } else {
-                alert('Selected CSV File is empty');
-                jQuery('#file').val('');
-                throw new Error('Selected CSV File is empty');
-            }
-            //return result; //JavaScript object
-            return JSON.stringify(result); //JSON
         },
         getRecFields: function getRecFields(rec, recID) {
-            var title = 'getRecFields()::';
-            console.log(title + "rec", rec);
-            console.log('recID***():::', recID);//bintransfer
+            var title = 'getRecFields(::)';
             var newfields = [];
             var fieldObj = {};
             var fields, bodyfields, filteredFields = [], sublistFields = {}, items = [], excludedFieldsArray, fieldfilterObj, obj = {};
@@ -82,8 +85,8 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     items = rec.getSublistFields({
                         sublistId: 'inventory'
                     });
-                } 
-                else if (recID == 'subscription'){
+                }
+                else if (recID == 'subscription') {
                     items = rec.getSublistFields({
                         sublistId: 'subscriptionline'
                     });
@@ -94,7 +97,7 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     });
                 }
 
-                console.log('items', items);
+                // console.log('items', items);
                 if (fields.length) {
                     filteredFields = fields.filter(function (val) {
                         for (var i = 0; i < excludedFieldsArray.length; i++) {
@@ -108,18 +111,16 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                     });
                 }
                 filteredFields = []
-                console.log('items.length', items.length);
+                // console.log('items.length', items.length);
                 if (items.length) {
                     for (var i = 0; i < items.length; i++) {
                         if (recID == 'bintransfer') {
-                            console.log('Working', '1');
                             fieldfilterObj = rec.getSublistField({
                                 sublistId: 'inventory',
                                 fieldId: items[i],
                                 line: 0
                             });
-                        } else if(recID == 'subscription') {
-                            console.log('Working', '2');
+                        } else if (recID == 'subscription') {
                             fieldfilterObj = rec.getSublistField({
                                 sublistId: 'subscriptionline',
                                 fieldId: items[i],
@@ -131,11 +132,10 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                                 fieldId: items[i],
                                 line: 0
                             });
-                            console.log('fieldfilterObj======', fieldfilterObj);
+                            // console.log('fieldfilterObj======', fieldfilterObj);
                         }
-                        console.log('fieldfilterObj ELSE IF', fieldfilterObj);
+                        // console.log('fieldfilterObj ELSE IF', fieldfilterObj);
                         if (fieldfilterObj && fieldfilterObj.label != '' && fieldfilterObj.isDisplay && !fieldfilterObj.isReadOnly) {
-                            console.log('working YES NO', 'YES');
                             obj = {}
                             obj.id = fieldfilterObj.id;
                             obj.name = fieldfilterObj.label;
@@ -147,7 +147,7 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                             filteredFields.push(obj)
                         }
                     }
-                    console.log('filteredFields------0000', filteredFields);
+                    // console.log('filteredFields------0000', filteredFields);
                     items = filteredFields;
                     sublistFields.item = items;
                 }
