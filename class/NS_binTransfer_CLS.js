@@ -1,7 +1,7 @@
 define(['N/record', '../class/createCSVFile.js','N/search'], function (record, createCSVLogfile,search) {
     var logError = [];
     return {
-        Create: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
+        Create: function (csvValuesData, bodyFieldsLineFieldsOBJ, rectype, errorFileFolder) {
             var title = 'binTransfer()::';
             try {
                 log.debug({
@@ -14,9 +14,15 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                     isDynamic: true
                 });
                 var csvValuesDataGroupOBJ = csvValuesData[0];
-                createRecordinArray = JSON.parse(createRecordinArray);
-                for (var i = 0; i < createRecordinArray.length; i++) {
-                    var FieldSetObj = createRecordinArray[i];
+                // createRecordinArray = JSON.parse(createRecordinArray);
+                bodyFieldsLineFieldsOBJ = JSON.parse(bodyFieldsLineFieldsOBJ);
+                log.debug({
+                    title: 'bodyFieldsLineFieldsOBJ in bin class',
+                    details: bodyFieldsLineFieldsOBJ
+                });
+                var bodyFieldArray = bodyFieldsLineFieldsOBJ.bodyFields;
+                for (var i = 0; i < bodyFieldArray.length; i++) {
+                    var FieldSetObj = bodyFieldArray[i];
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
                     var val = csvValuesDataGroupOBJ[header];
@@ -43,14 +49,15 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                 }
                 //set item sub tab data
                 var newArr = [];
-                var jsonLinelevelArray = JSON.parse(LineLevelData);
+                // var jsonLinelevelArray = JSON.parse(LineLevelData);
+                var lineLevelFieldArray = bodyFieldsLineFieldsOBJ.LineFields;
                 for (var j = 0; j < csvValuesData.length; j++) {
                     NetsuiteRecordCreate.selectNewLine({
                         sublistId: 'inventory'
                     });
                     var csvValuesDataGroupOBJ = csvValuesData[j];
-                    for (var k = 0; k < jsonLinelevelArray.length; k++) {
-                        var LineSetObj = jsonLinelevelArray[k];
+                    for (var k = 0; k < lineLevelFieldArray.length; k++) {
+                        var LineSetObj = lineLevelFieldArray[k];
                         var header = LineSetObj.csvField;
                         var NSid = LineSetObj.NSField;
                         var val = csvValuesDataGroupOBJ[header];
@@ -95,8 +102,7 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                                 inventoryDetailRecord.setCurrentSublistValue({
                                     sublistId: 'inventoryassignment',
                                     fieldId: 'binnumber',
-                                    // value: parseInt(invDetailArray.fromId),
-                                    value: 6,
+                                    value: parseInt(invDetailArray.fromId),
                                     ignoreFieldChange: true
                                 });
                                 log.debug('invDetailArray.toId', invDetailArray.toId);
@@ -150,17 +156,9 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                 details: logError
             });
             if (logError && logError.length > 0) {
-                log.debug({
-                    title: 'LOG_ARRAY',
-                    details: JSON.stringify(logError)
-                });
                 var properties = Object.keys(logError[0]);
-                log.debug({
-                    title: 'properties',
-                    details: JSON.stringify(properties)
-                });
                 // call class that create error file
-                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties);
+                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties, errorFileFolder);
                 log.debug({
                     title: 'created and saved the log file: ',
                     details: csvFileCreated
@@ -177,7 +175,7 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                             search.createColumn({ name: "scriptid", label: "Script ID" }),
                             search.createColumn({ name: "custrecord_ab_mr_status_date", label: "Date" }),
                             search.createColumn({ name: "custrecord_ab_mr_status_mr_summary", label: "Map Reduce Summary" }),
-                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSV Data ID" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSv Data ID" }),
                             search.createColumn({
                                 name: "created",
                                 sort: search.Sort.DESC,
@@ -195,17 +193,13 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                     id: parseInt(RecordID)
                 });
                 mapReduceRecObj.setValue({
-                    fieldId: 'custrecord_ab_error_file_id',
-                    value: csvFileCreated
-                });
-                mapReduceRecObj.setValue({
                     fieldId: 'custrecord_ab_error_file_link',
-                    value: 'https://tstdrv2084962.app.netsuite.com/app/common/media/mediaitem.nl?id='+csvFileCreated+'&e=T'
+                    value: csvFileCreated
                 });
                 mapReduceRecObj.save();
             }
         },
-        Update: function (csvValuesData, createRecordinArray, rectype, LineLevelData) {
+        Update: function (csvValuesData, createRecordinArray, rectype, errorFileFolder) {
             var title = 'binTransfer Update::';
             var loadrec;
             try {
@@ -344,17 +338,9 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                 details: logError
             });
             if (logError && logError.length > 0) {
-                log.debug({
-                    title: 'LOG_ARRAY',
-                    details: JSON.stringify(logError)
-                });
                 var properties = Object.keys(logError[0]);
-                log.debug({
-                    title: 'properties',
-                    details: JSON.stringify(properties)
-                });
                 // call class that create error file
-                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties);
+                var csvFileCreated = createCSVLogfile.createCSVFile(logError, properties, errorFileFolder);
                 log.debug({
                     title: 'created and saved the log file: ',
                     details: csvFileCreated
@@ -371,7 +357,7 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                             search.createColumn({ name: "scriptid", label: "Script ID" }),
                             search.createColumn({ name: "custrecord_ab_mr_status_date", label: "Date" }),
                             search.createColumn({ name: "custrecord_ab_mr_status_mr_summary", label: "Map Reduce Summary" }),
-                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSV Data ID" }),
+                            search.createColumn({ name: "custrecord_ab_mr_status_csv_data_id", label: "CSv Data ID" }),
                             search.createColumn({
                                 name: "created",
                                 sort: search.Sort.DESC,
@@ -389,12 +375,8 @@ define(['N/record', '../class/createCSVFile.js','N/search'], function (record, c
                     id: parseInt(RecordID)
                 });
                 mapReduceRecObj.setValue({
-                    fieldId: 'custrecord_ab_error_file_id',
-                    value: csvFileCreated
-                });
-                mapReduceRecObj.setValue({
                     fieldId: 'custrecord_ab_error_file_link',
-                    value: 'https://tstdrv2084962.app.netsuite.com/app/common/media/mediaitem.nl?id='+csvFileCreated+'&e=T'
+                    value: csvFileCreated
                 });
                 mapReduceRecObj.save();
             }

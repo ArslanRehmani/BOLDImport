@@ -27,7 +27,7 @@ define(['N/ui/serverWidget', 'N/log', 'N/task', '../class/ab_map_reduce_status_C
                 var response = context.response;
                 var UpdateRecord, assistance, csvDataFolderID, csvDataFolderIDExcelFormate, selectOption, internalIdObj,
                     require, lenghtEqual, bodyFieldsLineFieldsOBJ, csvDataArray, uploadedCSVFileName, uploadedCSVFileData,
-                    fileCabinetUploadedCsvFileId, fileCabinetCsvFileIdExcelFormate;
+                    fileCabinetUploadedCsvFileId, fileCabinetCsvFileIdExcelFormate, abMapReduceRecordRecType, errorFileFolder;
                 assistance = serverWidget.createAssistant({
                     title: 'BOLDImport Assistant'
                 });
@@ -36,6 +36,12 @@ define(['N/ui/serverWidget', 'N/log', 'N/task', '../class/ab_map_reduce_status_C
                 });
                 csvDataFolderIDExcelFormate = runtime.getCurrentScript().getParameter({
                     name: 'custscriptab_csv_excel_folder_id'
+                });
+                abMapReduceRecordRecType = runtime.getCurrentScript().getParameter({
+                    name: 'custscript_ab_mapreduce_record_rectype'
+                });
+                errorFileFolder = runtime.getCurrentScript().getParameter({
+                    name: 'custscript_ab_error_file_folder'
                 });
                 //client Script call
                 assistance.clientScriptModulePath = '../client/ab_cs_function_csv.js';
@@ -74,13 +80,18 @@ define(['N/ui/serverWidget', 'N/log', 'N/task', '../class/ab_map_reduce_status_C
                             csvDataArray = commonLib.csvDatafromSecondStep(assistance);
                             uploadedCSVFileName = commonLib.uploadedcsvFileNameSecondStep(assistance);
                             uploadedCSVFileData = commonLib.uploadedcsvFileDataSecondStep(assistance);
+                            var saveMapName = commonLib.bitSaveMappingName(assistance);
+                            log.debug({
+                                title: 'saveMapName',
+                                details: saveMapName
+                            });
                             //Create file in File Cabniet to store CSV file data
                             fileCabinetUploadedCsvFileId = SlFunLib.createCSVFileInCabinet(csvDataFolderID, csvDataArray, uploadedCSVFileName);
                             //create Excel formate file in file cabinet
                             fileCabinetCsvFileIdExcelFormate = SlFunLib.createCSVFileInCabinetExcelFormate(csvDataFolderIDExcelFormate, uploadedCSVFileName, uploadedCSVFileData);
                             SlFunLib.createMapFieldRecords(bodyFieldsLineFieldsOBJ, fileCabinetCsvFileIdExcelFormate, rectypetostring, UpdateRecord, uploadedCSVFileName, fileCabinetUploadedCsvFileId);
                             //Call MapReduce Script for record creation & return id
-                            var mapReduceId = mrFunLib.mapReduceTaskStatus(fileCabinetUploadedCsvFileId, rectypetostring, bodyFieldsLineFieldsOBJ, UpdateRecord);
+                            var mapReduceId = mrFunLib.mapReduceTaskStatus(fileCabinetUploadedCsvFileId, rectypetostring, bodyFieldsLineFieldsOBJ, UpdateRecord, errorFileFolder);
                             var mrSummary = task.checkStatus({
                                 taskId: mapReduceId
                             });
@@ -120,7 +131,7 @@ define(['N/ui/serverWidget', 'N/log', 'N/task', '../class/ab_map_reduce_status_C
                         break;
 
                     case 'custpage_ab_fieldmap':
-                        addStepperLib.buildFourthStep(assistance);
+                        addStepperLib.buildFourthStep(assistance,abMapReduceRecordRecType);
                         break;
                 }
                 response.writePage(assistance);

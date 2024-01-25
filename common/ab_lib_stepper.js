@@ -73,6 +73,11 @@ define(['N/log', 'N/record', 'N/ui/serverWidget', 'N/search'],
                     uploadedCsvFileData.updateDisplayType({
                         displayType: serverWidget.FieldDisplayType.HIDDEN
                     });
+                    var saveBitMappingWithName = assistance.addField({
+                        id: 'custpage_ab_savebitname',
+                        type: serverWidget.FieldType.TEXT,
+                        label: 'BIT Save Mapping Name'
+                    });
 
                 } catch (error) {
                     log.error(title + error.name, error.message)
@@ -145,7 +150,7 @@ define(['N/log', 'N/record', 'N/ui/serverWidget', 'N/search'],
                     log.error(title + error.name, error.message)
                 }
             },
-            buildFourthStep: function (assistance, msg) {
+            buildFourthStep: function (assistance, abMapReduceRecordRecType) {
                 var title = 'buildFourthStep(::)';
                 try {
                     var refreshBtn = assistance.addField({
@@ -178,7 +183,7 @@ define(['N/log', 'N/record', 'N/ui/serverWidget', 'N/search'],
                     htmlBtnData += '<SCRIPT language="JavaScript" type="text/javascript">';
                     htmlBtnData += "function bindEvent(element, type, handler) {if(element.addEventListener) {element.addEventListener(type, handler, false);} else {element.attachEvent('on'+type, handler);}} ";
                     htmlBtnData += 'bindEvent(window, "load", function(){';
-                    htmlBtnData += 'window.RefreshMapReduceRec = function (event){window.open("/app/common/custom/custrecordentrylist.nl?rectype=1507&amp;searchtype=Custom&searchid=3092&amp;style=NORMAL&amp;sortcol=Custom_CREATED_raw&amp;sortdir=DESC&amp;csv=HTML&amp;OfficeXML=F&amp;pdf=&amp;size=50&amp;_csrf=RNXxNUhg0W18IDbMDv4PomgNC4a8EWVwYrEDVdbw-wyF9LOrvqlKzaYoPWQ-gkFC6c72hheWoOgeX3RPMogkb6MQMhCEEm0ejN4U1HUk1k_WJK_xH8PDOCiis1UOiQb2DwVfJWrgBm0F9GO-oxl7b8wzNAKzUGfkFnG4qN4Obf4%3D&amp;twbx=F&amp;report=&amp;grid=&amp;dle=&amp;showall=F&amp;quicksort=Custom_CREATED_raw%20DESC")}';
+                    htmlBtnData += 'window.RefreshMapReduceRec = function (event){window.open("/app/common/custom/custrecordentrylist.nl?rectype='+abMapReduceRecordRecType+'")}';
                     htmlBtnData += '});';
                     htmlBtnData += '</SCRIPT>';
                     refreshBtn.defaultValue = htmlBtnData;

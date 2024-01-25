@@ -8,7 +8,7 @@ define(['N/log', 'N/record', '../common/ab_lib_convertCSVToJson.js'], function (
                 if (recID == 'itemfulfillment') {
                     rec = record.load({
                         type: 'itemfulfillment',
-                        id: 9077160, //static id need to be change in dynamic
+                        id: 195348, //static id need to be change in dynamic
                         isDynamic: false
                     });
                 } else {

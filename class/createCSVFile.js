@@ -1,6 +1,6 @@
 define(['N/record', 'N/log', 'N/file'], function (record, log, file, url) {
     return {
-        createCSVFile: function (errorArray, properties) {
+        createCSVFile: function (errorArray, properties, errorFileFolder) {
             var title = 'createCSVFile()::';
             try {
 
@@ -54,7 +54,7 @@ define(['N/record', 'N/log', 'N/file'], function (record, log, file, url) {
                     name: 'Error file' + currentTimestamp,
                     fileType: file.Type.CSV,
                     contents: csvFullData,
-                    folder: 14525,
+                    folder: parseInt(errorFileFolder),
                     isOnline: true
                 });
 

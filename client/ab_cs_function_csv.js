@@ -17,8 +17,8 @@
  * Date:		01/01/2022
  * 
  ***********************************************************************/
-define(['N/url','N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js', '../common/ab_lib_common.js', '../common/ab_lib_cs_fun.js'],
-    function (nsUrl,currentRecord, importRecordCLS, convertCSVLIB, commonLib, csFunLib) {
+define(['N/log', 'N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../common/ab_lib_convertCSVToJson.js', '../common/ab_lib_common.js', '../common/ab_lib_cs_fun.js'],
+    function (log, currentRecord, importRecordCLS, convertCSVLIB, commonLib, csFunLib) {
 
         function pageInit(context) {
             var title = 'pageInit(::)';
@@ -26,6 +26,7 @@ define(['N/url','N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../c
                 selectRecTypeToImportCvs();
                 window.swapRow = swapRow;
                 window.hideLineItems = hideLineItems;
+                window.getJsonCSV = getJsonCSV;
                 var record = currentRecord.get();
                 var headerFields, NetSuiteArray = [], recordField, csvdata, UploadFileName, UploadFileCSVdata;
 
@@ -305,18 +306,18 @@ define(['N/url','N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../c
                                         NetSuiteArray.push(datarec.id);
                                     } else {
                                         html += '<tr class="hideTr">\
-                                                                            <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" linename = "' + datarec.name + '"  name = "' + 'Line ' + datarec.name + '">\
-                                                                            <div class="slideme padding-75" style="display: none; padding-left:40px;">\
-                                                                                <a onclick="swapRow(event)" title="'+ datarec.name + '" class="a-display font-italic">\
-                                                                                    <div class="contect-height position-relative">\
-                                                                                        <span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i>\
-                                                                                        </span>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '\
-                                                                                        <span class="padding-right right-icon icon"><i class="fa fa-times"></i></span>\
+                                                                                <td class = "fields padding-0 border-none" data-id = "'+ datarec.id + '" linename = "' + datarec.name + '"  name = "' + 'Line ' + datarec.name + '">\
+                                                                                <div class="slideme padding-75" style="display: none; padding-left:40px;">\
+                                                                                    <a onclick="swapRow(event)" title="'+ datarec.name + '" class="a-display font-italic">\
+                                                                                        <div class="contect-height position-relative">\
+                                                                                            <span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i>\
+                                                                                            </span>' + " <span> <strong>lineItem : </strong> </span>" + datarec.name + '\
+                                                                                            <span class="padding-right right-icon icon"><i class="fa fa-times"></i></span>\
+                                                                                        </div>\
+                                                                                    </a>\
                                                                                     </div>\
-                                                                                </a>\
-                                                                                </div>\
-                                                                            </td>\
-                                                                        </tr>'
+                                                                                </td>\
+                                                                            </tr>'
                                     }
                                 }
                             }
@@ -332,9 +333,11 @@ define(['N/url','N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../c
                                                                     </tr>'
                                 NetSuiteArray.push(datarec.id);
                             } else {
-                                html += '<tr>\
-                                                                    <td class = "fields" data-id = "'+ datarec.id + '" name = "' + datarec.name + '"><a onclick="swapRow(event)" title="' + datarec.name + '" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
-                                                                    </tr>'
+                                if(datarec.id != 'empty'){
+                                    html += '<tr>\
+                                                                        <td class = "fields" data-id = "'+ datarec.id + '" name = "' + datarec.name + '"><a onclick="swapRow(event)" title="' + datarec.name + '" class="a-display"><div class="contect-height position-relative"><span class="padding-right left-icon icon"><i class="fa fa-arrow-left"></i></span>' + datarec.name + '<span class="padding-right right-icon icon"><i class="fa fa-times"></i></span></div></a></td>\
+                                                                        </tr>'
+                                }
                             }
                         }
 
@@ -421,8 +424,78 @@ define(['N/url','N/currentRecord', '../class/ab_CLS_boldImportRecords.js', '../c
                     }
                 }
                 localStorage.setItem('NetSuiteRequireDataLength', NetSuiteArray);
-                window.getJsonCSV = convertCSVLIB.getJsonCSV;
-                window.csvJSON = convertCSVLIB.csvJSON;
+                // window.getJsonCSV = convertCSVLIB.getJsonCSV;
+                // window.csvJSON = convertCSVLIB.csvJSON;
+            } catch (e) {
+                log.debug('Exception ' + title, e.message);
+            }
+        }
+        function getJsonCSV(file) {
+            var title = 'getJsonCSV(::)';
+            try {
+                var self = this;
+                var fileUpload = document.getElementById("file");
+                if (!file) {
+                    file = fileUpload.files[0];
+                } else {
+                    file = file[0];
+                }
+                localStorage.setItem("UploadFileName", file.name);
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
+                if (regex.test(file.name.toLowerCase())) {
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var data = e.target.result;
+                            console.log('dataCSSV', data);
+                            localStorage.setItem("UploadFileCSVdata", data);
+                            // self.csvJSON(data);
+                            csvJSON(data);
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        alert("This browser does not support HTML5.");
+                    }
+                } else {
+                    alert("Please upload a valid CSV file.");
+                }
+                return false;
+            } catch (e) {
+                log.debug('Exception ' + title, e.message);
+            }
+        }
+        function csvJSON(csv) {
+            var title = 'csvJSON(::)';
+            try {
+                var lines = csv.split("\r");
+                var result = [];
+                // NOTE: If your columns contain commas in their values, you'll need
+                // to deal with those before doing the next step
+                // (you might convert them to &&& or something, then covert them back later)
+                // jsfiddle showing the issue https://jsfiddle.net/
+                var headers = lines[0].split(",");
+                for (var i = 1; i < lines.length; i++) {
+                    var obj = {};
+                    var currentline = lines[i].replace('\n', '').split(",");
+                    for (var j = 0; j < headers.length; j++) {
+                        if (headers[j] && currentline[j]) {
+                            obj[headers[j]] = currentline[j];
+                        }
+                    }
+                    if (Object.keys(obj).length) {
+                        result.push(obj);
+                    }
+                }
+                if (result.length) {
+                    localStorage.setItem("csvData", JSON.stringify(result));
+                    console.log('***result***', result);
+                } else {
+                    alert('Selected CSV File is empty');
+                    jQuery('#file').val('');
+                    throw new Error('Selected CSV File is empty');
+                }
+                //return result; //JavaScript object
+                return JSON.stringify(result); //JSON
             } catch (e) {
                 log.debug('Exception ' + title, e.message);
             }

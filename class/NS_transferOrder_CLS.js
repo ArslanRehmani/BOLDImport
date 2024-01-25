@@ -2,7 +2,7 @@ define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, 
     var logError = [];
     return {
         Create: function (csvValuesData, bodyFieldsLineFieldsOBJ, rectype, errorFileFolder) {
-            var title = 'Create intercompanyTransfer Order(::)';
+            var title = 'Create Transfer Order(::)';
             try {
                 rectype = rectype.toString();
                 var NetsuiteRecordCreate = record.create({
@@ -11,10 +11,6 @@ define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, 
                 });
                 var csvValuesDataGroupOBJ = csvValuesData[0];
                 bodyFieldsLineFieldsOBJ = JSON.parse(bodyFieldsLineFieldsOBJ);
-                // log.debug({
-                //     title: 'bodyFieldsLineFieldsOBJ in class',
-                //     details: bodyFieldsLineFieldsOBJ
-                // });
                 var bodyFieldArray = bodyFieldsLineFieldsOBJ.bodyFields;
 
                 for (var i = 0; i < bodyFieldArray.length; i++) {
@@ -22,7 +18,7 @@ define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, 
                     var header = FieldSetObj.csvField;
                     var NSid = FieldSetObj.NSField;
                     var val = csvValuesDataGroupOBJ[header];
-                    if (header == 'To Subsidiary') {
+                    if (header == 'Subsidiary') {
                         NetsuiteRecordCreate.setValue({
                             fieldId: NSid, //netsuite field id's
                             value: val // Netsuite Field Value
@@ -32,7 +28,7 @@ define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, 
                             var header = FieldSetObj.csvField;
                             var NSid = FieldSetObj.NSField;
                             var val = csvValuesDataGroupOBJ[header];
-                            if (header == 'To Subsidiary') {
+                            if (header == 'Subsidiary') {
                                 continue;
                             }
                             if (header == 'Date') {
@@ -144,7 +140,7 @@ define(['N/record', '../class/createCSVFile.js', 'N/search'], function (record, 
             }
         },
         Update: function (csvValuesData, bodyFieldsLineFieldsOBJ, rectype, errorFileFolder) {
-            var title = 'Update intercompanyTransfer Order(::)';
+            var title = 'Update Transfer Order(::)';
             var loadrec;
             try {
                 rectype = rectype.toString();

@@ -82,6 +82,15 @@ define(['N/log'], function (log) {
                 log.debug(title + e.message, e.error);
             }
         },
+        bitSaveMappingName: function (assistance) {
+            var title = 'bitSaveMappingName()::';
+            try {
+                var bitSaveMapName = getValueFromSteppers(assistance, 'custpage_ab_importopt', 'custpage_ab_savebitname');
+                return bitSaveMapName;
+            } catch (e) {
+                log.debug(title + e.message, e.error);
+            }
+        },
         sortTable: function (table, order) {
             var title = 'sortTable(::)';
             try {

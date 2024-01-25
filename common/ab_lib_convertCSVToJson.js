@@ -21,8 +21,9 @@ define(['./ab_lib_fields_excluded.js'], function (fieldsExcluded) {
                         var reader = new FileReader();
                         reader.onload = function (e) {
                             var data = e.target.result;
-                            // console.log('dataCSSV', data);
+                            console.log('dataCSSV', data);
                             localStorage.setItem("UploadFileCSVdata", data);
+                            self.csvJSON(data);
                         };
                         reader.readAsText(file);
                     } else {

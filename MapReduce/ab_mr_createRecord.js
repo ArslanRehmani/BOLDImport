@@ -26,6 +26,10 @@ define(['N/log', 'N/runtime', 'N/file', '../Library/Controller.js'],
                 var csvDataFolderID = runtime.getCurrentScript().getParameter({
                     name: 'custscript_ab_upload_csv_file_id'
                 });
+                log.debug({
+                    title: 'csvDataFolderID',
+                    details: csvDataFolderID
+                });
                 var CSVData = file.load({ id: csvDataFolderID });
                 var CSVDataValue = CSVData.getContents();
                 CSVDataValue = JSON.parse(CSVDataValue);
@@ -48,8 +52,11 @@ define(['N/log', 'N/runtime', 'N/file', '../Library/Controller.js'],
                 var selectOption = runtime.getCurrentScript().getParameter({//for only update record
                     name: 'custscript_ab_select_option'
                 });
+                var errorFileFolder = runtime.getCurrentScript().getParameter({//for only update record
+                    name: 'custscript_ab_mr_error_file_folder'
+                });
                 //Call Controller class that create records in NS
-                ControllerLib.recTypeSwitch(csvValuesData, bodyFieldsLineFieldsOBJ, rectype, selectOption);
+                ControllerLib.recTypeSwitch(csvValuesData, bodyFieldsLineFieldsOBJ, rectype, selectOption, errorFileFolder);
             } catch (e) {
                 log.debug('Exception ' + title, e.message);
             }
